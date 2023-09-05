@@ -93,11 +93,26 @@ impl<'a> PostMetadataParser<'a> {
         error_footer("Parsing Error");
         
         None
-        
     }
     
-    fn parse_metadata(&self, end: usize) -> Option<()> {
-        /* Get to the first colon */
+    fn skip_whitespaces(&mut self) {
+        let mut cursor = self.cursor;
+        
+        while let Some(byte) = self.data.get(cursor) {
+            if !matches!(*byte, b' ') {
+                break;
+            }
+            
+            cursor += 1;
+        }
+        
+        self.cursor = cursor;
+    }
+    
+    fn parse_metadata(&mut self, end: usize) -> Option<()> {
+        self.skip_whitespaces();
+        
+        let key_start = self.cursor;
         let mut colon = self.cursor;
         
         while colon < end && self.data[colon] != b':' {
@@ -108,7 +123,19 @@ impl<'a> PostMetadataParser<'a> {
             return self.throw_error(self.cursor, end - self.cursor, "Invalid metadata: Missing colon");
         }
         
-        Some(())
+        self.cursor = colon + 1;
+        self.skip_whitespaces();
+        
+        match &self.data[key_start..colon] {
+            b"date" => self.parse_date(end),
+            b"authors" => todo!(),
+            b"categories" => todo!(),
+            _ => self.throw_error(self.cursor, colon - self.cursor, "Invalid metadata key"),
+        }
+    }
+    
+    fn parse_date(&mut self, end: usize) -> Option<()> {
+        todo!()
     }
 }
 
@@ -118,6 +145,11 @@ mod tests {
     
     #[test]
     fn missing_colon() {
-        assert!(PostMetadataParser::parse(b"missing colon\n", Path::new("<test>")).is_none());
+        assert!(PostMetadataParser::parse(b"   missing colon\n", Path::new("<test>")).is_none());
+    }
+    
+    #[test]
+    fn invalid_key() {
+        assert!(PostMetadataParser::parse(b"   x: y\n", Path::new("<test>")).is_none());
     }
 }
