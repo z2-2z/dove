@@ -20,7 +20,7 @@ impl Post {
     pub fn from_file(path: &Path) -> Self {
         let id: &str = path.file_prefix().unwrap().to_string_lossy().borrow();
         let content = map_file(path);
-        let parser = PostMetadataParser::parse(&content);
+        let parser = PostMetadataParser::parse(&content, path);
         
         todo!()
     }

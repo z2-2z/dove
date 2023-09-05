@@ -1,6 +1,7 @@
 #![feature(path_file_prefix)]
 
 mod posts;
+mod msg;
 
 use clap::Parser;
 use posts::{
