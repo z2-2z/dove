@@ -2,6 +2,7 @@ use std::path::{Path, PathBuf};
 use std::iter::Iterator;
 use std::fs::{read_dir, ReadDir};
 use std::ffi::OsStr;
+use crate::posts::post::POST_EXTENSION;
 
 pub struct PostIterator {
     dir_stack: Vec<PathBuf>,
@@ -38,7 +39,7 @@ impl PostIterator {
                 
                 if item.is_dir() {
                     self.dir_stack.push(item);
-                } else if item.extension() == Some(OsStr::new("md")) {
+                } else if item.extension() == Some(OsStr::new(POST_EXTENSION)) {
                     self.next_item = Some(item);
                     return;
                 } 

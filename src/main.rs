@@ -1,6 +1,12 @@
-use clap::Parser;
+#![feature(path_file_prefix)]
 
-mod postiter;
+mod posts;
+
+use clap::Parser;
+use posts::{
+    iter::PostIterator,
+    post::Post,
+};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -15,7 +21,8 @@ struct Args {
 fn main() {
     let args = Args::parse();
     
-    for post_file in postiter::PostIterator::read(&args.input) {
-        println!("{}", post_file.display());
+    for path in PostIterator::read(&args.input) {
+        println!("{}", path.display());
+        let _post = Post::from_file(&path);
     }
 }
