@@ -9,7 +9,7 @@ pub struct ParsingError {
     message: String,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PostDate {
     day: u8,
     month: u8,
@@ -142,7 +142,7 @@ impl<'a> PostMetadataParser<'a> {
             date: None,
         };
         
-        /* 1.) lines with metadata fields */
+        /* Lines with metadata fields */
         while let Some(linebreak) = parser.find_next_stop() {
             if linebreak == parser.cursor {
                 break;
@@ -153,15 +153,21 @@ impl<'a> PostMetadataParser<'a> {
             parser.cursor = linebreak + 1;
         }
         
-        /* 2.) empty line */
+        /* Empty line */
         parser.cursor += 1;
         
-        /* 3.) title */
-        if parser.data.get(parser.cursor).copied() != Some(b'#') {
-            
-        }
+        /* Title */
+        let title = parser.parse_title()?;
         
-        todo!()
+        /* Collect parsed metadata */
+        let date = parser.date()?;
+        
+        Ok(PostMetadata {
+            title,
+            date,
+            authors: todo!(),
+            categories: todo!(),
+        })
     }
 
     fn find_next_stop(&self) -> Option<usize> {
@@ -216,6 +222,28 @@ impl<'a> PostMetadataParser<'a> {
         self.cursor = cursor;
     }
     
+    fn parse_title(&mut self) -> Result<String, ParsingError> {
+        if self.data.get(self.cursor).copied() != Some(b'#') {
+            return Err(self.parsing_error("Expected title (h1) after metadata lines"));
+        }
+        
+        self.cursor += 1;
+        
+        if self.data.get(self.cursor).copied() != Some(b' ') {
+            return Err(self.parsing_error("Expected whitespace after hash"));
+        }
+        
+        self.skip_whitespaces();
+        
+        let end = self.find_next_stop().ok_or_else(|| self.parsing_error("No title content given"))?;
+        
+        let title = std::str::from_utf8(&self.data[self.cursor..end]).map_err(|_| self.parsing_error("Title contains invalid characters"))?;
+        
+        self.cursor = end + 1;
+        
+        Ok(title.to_string())
+    }
+    
     fn parse_metadata(&mut self, end: usize) -> Result<(), ParsingError> {
         self.skip_whitespaces();
         
@@ -246,6 +274,10 @@ impl<'a> PostMetadataParser<'a> {
     fn parse_date(&mut self, end: usize) -> Result<PostDate, ParsingError> {
         let line = &self.data[self.cursor..end];
         PostDate::parse(line).ok_or_else(|| self.parsing_error("Invalid date format"))
+    }
+    
+    fn date(&self) -> Result<PostDate, ParsingError> {
+        self.date.as_ref().cloned().ok_or_else(|| self.parsing_error("Post date was not set"))
     }
 }
 
