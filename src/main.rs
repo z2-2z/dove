@@ -2,12 +2,20 @@
 
 mod posts;
 
+use std::path::Path;
+use std::fs::File;
+use memmap2::Mmap;
 use clap::Parser;
 use posts::{
     iter::PostIterator,
     post::Post,
 };
 use std::process::exit;
+
+fn map_file<P: AsRef<Path>>(path: P) -> Mmap {
+    let file = File::open(path).unwrap();
+    unsafe { Mmap::map(&file) }.unwrap()
+}
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -25,7 +33,8 @@ fn main() {
     let mut erroneous_posts = false;
     
     for path in PostIterator::read(&args.input) {
-        let post = match Post::from_file(&path) {
+        let content = map_file(&path);
+        let post = match Post::new(&content) {
             Ok(post) => post,
             Err(err) => {
                 eprintln!("[{}] {}", path.display(), err);
@@ -33,7 +42,9 @@ fn main() {
                 continue;
             },
         };
+        post.generate_html(&args.output, &content);
         posts.push(post);
+        drop(content);
     }
     
     if erroneous_posts {
