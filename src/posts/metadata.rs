@@ -1,12 +1,25 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use crate::msg::{
     error_header, error_footer,
 };
+
+pub struct ParsingError {
+    line: usize,
+    path: PathBuf,
+    message: &'static str,
+}
 
 pub struct PostDate {
     day: u8,
     month: u8,
     year: u16,
+}
+
+impl PostDate {
+    fn parse(data: &[u8]) -> Option<Self> {
+        
+        todo!()
+    }
 }
 
 pub struct PostMetadata {
@@ -24,7 +37,7 @@ pub struct PostMetadataParser<'a> {
 }
 
 impl<'a> PostMetadataParser<'a> {
-    pub fn parse(data: &'a [u8], file: &'a Path) -> Option<PostMetadata> {
+    pub fn parse(data: &'a [u8], file: &'a Path) -> Result<PostMetadata, ParsingError> {
         let mut parser = Self {
             file,
             cursor: 0,
@@ -33,7 +46,7 @@ impl<'a> PostMetadataParser<'a> {
         };
         
         /* 1.) lines with metadata fields */
-        while let Some(linebreak) = parser.find_linebreak() {
+        while let Some(linebreak) = parser.find_next_stop() {
             if linebreak == parser.cursor {
                 break;
             }
@@ -54,7 +67,7 @@ impl<'a> PostMetadataParser<'a> {
         todo!()
     }
 
-    fn find_linebreak(&self) -> Option<usize> {
+    fn find_next_stop(&self) -> Option<usize> {
         let mut cursor = self.cursor;
         
         while let Some(byte) = self.data.get(cursor) {
@@ -65,13 +78,17 @@ impl<'a> PostMetadataParser<'a> {
             cursor += 1;
         }
         
-        None
+        if cursor == self.cursor{
+            None
+        } else {
+            Some(cursor)
+        }
     }
     
-    fn find_line_number(&self, pos: usize) -> usize {
+    fn find_line_number(&self) -> usize {
         let mut lno = 1;
         
-        for i in &self.data[0..pos] {
+        for i in &self.data[0..self.cursor] {
             if *i == b'\n' {
                 lno += 1;
             }
@@ -80,19 +97,12 @@ impl<'a> PostMetadataParser<'a> {
         lno
     }
     
-    fn throw_error<S: AsRef<str>>(&self, pos: usize, len: usize, msg: S) -> Option<()> {
-        let lno = format!("{}", self.find_line_number(pos));
-        
-        error_header("Parsing Error");
-        
-        eprintln!("In file {}: {}", self.file.display(), msg.as_ref());
-        let subpart = std::str::from_utf8(&self.data[pos..pos + len]).unwrap();
-        eprintln!("Line {}: {}", lno, subpart);
-        eprintln!("     {3: <2$}  {1:^<0$}", len, "", lno.len(), "");
-        
-        error_footer("Parsing Error");
-        
-        None
+    fn parsing_error(&self, message: &'static str) -> ParsingError {
+        ParsingError {
+            line: self.find_line_number(),
+            path: self.file.to_path_buf(),
+            message,
+        }
     }
     
     fn skip_whitespaces(&mut self) {
@@ -109,7 +119,7 @@ impl<'a> PostMetadataParser<'a> {
         self.cursor = cursor;
     }
     
-    fn parse_metadata(&mut self, end: usize) -> Option<()> {
+    fn parse_metadata(&mut self, end: usize) -> Result<(), ParsingError> {
         self.skip_whitespaces();
         
         let key_start = self.cursor;
@@ -120,23 +130,28 @@ impl<'a> PostMetadataParser<'a> {
         }
         
         if colon == end {
-            return self.throw_error(self.cursor, end - self.cursor, "Invalid metadata: Missing colon");
+            return Err(self.parsing_error("Invalid metadata line: Missing colon"));
         }
         
         self.cursor = colon + 1;
         self.skip_whitespaces();
         
         match &self.data[key_start..colon] {
-            b"date" => self.parse_date(end),
+            b"date" => self.date = Some(self.parse_date(end)?),
             b"authors" => todo!(),
             b"categories" => todo!(),
-            _ => self.throw_error(self.cursor, colon - self.cursor, "Invalid metadata key"),
+            _ => return Err(self.parsing_error("Invalid metadata key")),
         }
+        
+        Ok(())
     }
     
-    fn parse_date(&mut self, end: usize) -> Option<()> {
-        todo!()
+    fn parse_date(&mut self, end: usize) -> Result<PostDate, ParsingError> {
+        let line = &self.data[self.cursor..end];
+        PostDate::parse(line).ok_or_else(|| self.parsing_error("Invalid date format"))
     }
+    
+    
 }
 
 #[cfg(test)]
@@ -145,11 +160,11 @@ mod tests {
     
     #[test]
     fn missing_colon() {
-        assert!(PostMetadataParser::parse(b"   missing colon\n", Path::new("<test>")).is_none());
+        assert!(PostMetadataParser::parse(b"   missing colon\n", Path::new("<test>")).is_err());
     }
     
     #[test]
     fn invalid_key() {
-        assert!(PostMetadataParser::parse(b"   x: y\n", Path::new("<test>")).is_none());
+        assert!(PostMetadataParser::parse(b"   x: y\n", Path::new("<test>")).is_err());
     }
 }
