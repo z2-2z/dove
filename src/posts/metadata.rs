@@ -6,9 +6,10 @@ use crate::msg::{
 pub struct ParsingError {
     line: usize,
     path: PathBuf,
-    message: &'static str,
+    message: String,
 }
 
+#[derive(Debug, PartialEq, Eq)]
 pub struct PostDate {
     day: u8,
     month: u8,
@@ -17,8 +18,104 @@ pub struct PostDate {
 
 impl PostDate {
     fn parse(data: &[u8]) -> Option<Self> {
+        /* First number */
+        let mut cursor = 0;
         
-        todo!()
+        while let Some(byte) = data.get(cursor) {
+            if !byte.is_ascii_digit() {
+                break;
+            }
+            
+            cursor += 1;
+        }
+        
+        let day: u8 = std::str::from_utf8(&data[0..cursor]).ok()?.parse().ok()?;
+        
+        if day == 0 || day > 31 {
+            return None;
+        }
+        
+        /* Separator */
+        if data.get(cursor).copied() != Some(b'-') {
+            return None;
+        }
+        cursor += 1;
+        
+        /* Second number */
+        let start_number = cursor;
+        
+        while let Some(byte) = data.get(cursor) {
+            if !byte.is_ascii_digit() {
+                break;
+            }
+            
+            cursor += 1;
+        }
+        
+        let month: u8 = std::str::from_utf8(&data[start_number..cursor]).ok()?.parse().ok()?;
+        
+        if month == 0 || month > 12 {
+            return None;
+        }
+        
+        /* Separator */
+        if data.get(cursor).copied() != Some(b'-') {
+            return None;
+        }
+        cursor += 1;
+        
+        /* Third number */
+        let start_number = cursor;
+        
+        while let Some(byte) = data.get(cursor) {
+            if !byte.is_ascii_digit() {
+                break;
+            }
+            
+            cursor += 1;
+        }
+        
+        let year: u16 = std::str::from_utf8(&data[start_number..cursor]).ok()?.parse().ok()?;
+        
+        if !(1970..=9999).contains(&year) {
+            return None;
+        }
+        
+        /* End of line */
+        if cursor < data.len() {
+            return None;
+        }
+        
+        Some(Self {
+            day,
+            month,
+            year,
+        })
+    }
+}
+
+#[cfg(test)]
+mod postdate_tests {
+    use super::*;
+    
+    #[test]
+    fn working() {
+        let date = PostDate::parse(b"01-02-1970").unwrap();
+        assert_eq!(
+            date,
+            PostDate {
+                day: 1,
+                month: 2,
+                year: 1970,
+            }
+        );
+    }
+    
+    #[test]
+    fn missing_fields() {
+        assert!(PostDate::parse(b"-02-1970").is_none());
+        assert!(PostDate::parse(b"01--1970").is_none());
+        assert!(PostDate::parse(b"01-02-").is_none());
     }
 }
 
@@ -97,11 +194,11 @@ impl<'a> PostMetadataParser<'a> {
         lno
     }
     
-    fn parsing_error(&self, message: &'static str) -> ParsingError {
+    fn parsing_error<S: Into<String>>(&self, message: S) -> ParsingError {
         ParsingError {
             line: self.find_line_number(),
             path: self.file.to_path_buf(),
-            message,
+            message: message.into(),
         }
     }
     
@@ -150,8 +247,6 @@ impl<'a> PostMetadataParser<'a> {
         let line = &self.data[self.cursor..end];
         PostDate::parse(line).ok_or_else(|| self.parsing_error("Invalid date format"))
     }
-    
-    
 }
 
 #[cfg(test)]
