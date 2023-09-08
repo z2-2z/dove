@@ -39,6 +39,7 @@ fn main() {
     
     //TODO: indicatif logger
     
+    /* Generate individual posts */
     for path in PostIterator::read(&args.input) {
         let content = map_file(&path);
         let post = match Post::new(&content) {
@@ -63,6 +64,10 @@ fn main() {
     if erroneous_posts {
         exit(1);
     }
+    
+    //TODO: copy static content
+    
+    //TODO: index page, category pages, author pages
     
     exit(0);
 }

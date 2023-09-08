@@ -19,16 +19,18 @@ fn month_name(month: u8) -> &'static str {
 }
 
 fn encode_filename(id: &str) -> String {
+    let mut prev_dash = false;
     id.chars()
-        .map(|c| if !c.is_ascii() || c.is_ascii_alphanumeric() {
-            c
-        } else {
-            '_'
-        })
-        .map(|c| if c.is_ascii() {
+        .filter(|c| c.is_ascii_alphanumeric() || *c == ' ')
+        .map(|c| if c.is_ascii_alphanumeric() {
             c.to_ascii_lowercase()
         } else {
-            '@'
+            '-'
+        })
+        .filter(|c| {
+            let ret = *c != '-' || !prev_dash;
+            prev_dash = *c == '-';
+            ret
         })
         .chain(".html".chars())
         .collect()
