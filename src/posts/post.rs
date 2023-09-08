@@ -26,7 +26,7 @@ fn encode_filename(id: &str) -> String {
             '_'
         })
         .map(|c| if c.is_ascii() {
-            c
+            c.to_ascii_lowercase()
         } else {
             '@'
         })

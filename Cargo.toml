@@ -13,3 +13,4 @@ debug = true
 clap = { version = "4.4.1", features = ["derive", "wrap_help", "env"] }
 memmap2 = "0.7.1"
 pulldown-cmark = "0.9.3"
+askama = "0.12.0"
