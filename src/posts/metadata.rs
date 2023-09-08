@@ -1,13 +1,13 @@
-use std::path::{Path, PathBuf};
-use crate::msg::{
-    error_header, error_footer,
-};
-
 #[derive(Debug)]
 pub struct ParsingError {
     line: usize,
-    path: PathBuf,
     message: String,
+}
+
+impl std::fmt::Display for ParsingError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Parsing Error in line {}: {}", self.line, self.message)
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -163,7 +163,6 @@ impl PostMetadata {
 }
 
 pub struct PostMetadataParser<'a> {
-    file: &'a Path,
     cursor: usize,
     data: &'a [u8],
     date: Option<PostDate>,
@@ -172,9 +171,8 @@ pub struct PostMetadataParser<'a> {
 }
 
 impl<'a> PostMetadataParser<'a> {
-    pub fn parse(data: &'a [u8], file: &'a Path) -> Result<PostMetadata, ParsingError> {
+    pub fn parse(data: &'a [u8]) -> Result<PostMetadata, ParsingError> {
         let mut parser = Self {
-            file,
             cursor: 0,
             data,
             date: None,
@@ -266,7 +264,6 @@ impl<'a> PostMetadataParser<'a> {
     fn parsing_error<S: Into<String>>(&self, message: S) -> ParsingError {
         ParsingError {
             line: self.find_line_number(),
-            path: self.file.to_path_buf(),
             message: message.into(),
         }
     }
@@ -413,22 +410,22 @@ mod tests {
     
     #[test]
     fn missing_colon() {
-        assert!(PostMetadataParser::parse(b"   missing colon\n", Path::new("<test>")).is_err());
+        assert!(PostMetadataParser::parse(b"   missing colon\n").is_err());
     }
     
     #[test]
     fn invalid_key() {
-        assert!(PostMetadataParser::parse(b"   x: y\n", Path::new("<test>")).is_err());
+        assert!(PostMetadataParser::parse(b"   x: y\n").is_err());
     }
     
     #[test]
     fn list_empty() {
-        assert!(PostMetadataParser::parse(b"authors: a,   ,b\n", Path::new("<test>")).is_err());
+        assert!(PostMetadataParser::parse(b"authors: a,   ,b\n").is_err());
     }
     
     #[test]
     fn test_metadata() {
-        let metadata = PostMetadataParser::parse(b"date: 01-02-1970\nauthors: Me , you , John Doe \ncategories: A, B, C\n\n# Title \n\ncontent", Path::new("<test>")).unwrap();
+        let metadata = PostMetadataParser::parse(b"date: 01-02-1970\nauthors: Me , you , John Doe \ncategories: A, B, C\n\n# Title \n\ncontent").unwrap();
         assert_eq!(metadata.date(), &PostDate {
             day: 1,
             month: 2,

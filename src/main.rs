@@ -1,13 +1,13 @@
 #![feature(path_file_prefix)]
 
 mod posts;
-mod msg;
 
 use clap::Parser;
 use posts::{
     iter::PostIterator,
     post::Post,
 };
+use std::process::exit;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -21,9 +21,24 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
+    let mut posts = Vec::new();
+    let mut erroneous_posts = false;
     
     for path in PostIterator::read(&args.input) {
-        println!("{}", path.display());
-        let _post = Post::from_file(&path);
+        let post = match Post::from_file(&path) {
+            Ok(post) => post,
+            Err(err) => {
+                eprintln!("[{}] {}", path.display(), err);
+                erroneous_posts = true;
+                continue;
+            },
+        };
+        posts.push(post);
     }
+    
+    if erroneous_posts {
+        exit(1);
+    }
+    
+    exit(0);
 }
