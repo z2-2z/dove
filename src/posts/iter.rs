@@ -2,7 +2,8 @@ use std::path::{Path, PathBuf};
 use std::iter::Iterator;
 use std::fs::{read_dir, ReadDir};
 use std::ffi::OsStr;
-use crate::posts::post::POST_EXTENSION;
+
+pub const POST_EXTENSION: &str = "md";
 
 pub struct PostIterator {
     dir_stack: Vec<PathBuf>,

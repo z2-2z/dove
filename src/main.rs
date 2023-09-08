@@ -1,6 +1,7 @@
 #![feature(path_file_prefix)]
 
 mod posts;
+mod renderer;
 
 use std::path::Path;
 use std::fs::File;
@@ -10,6 +11,7 @@ use posts::{
     iter::PostIterator,
     post::Post,
 };
+use renderer::html::HtmlRenderer;
 use std::process::exit;
 
 fn map_file<P: AsRef<Path>>(path: P) -> Mmap {
@@ -42,7 +44,13 @@ fn main() {
                 continue;
             },
         };
-        post.generate_html(&args.output, &content);
+        
+        let renderer = HtmlRenderer::new(&args.output, &post);
+        
+        if renderer.needs_updating(&path) {
+            renderer.render(&content, &post);
+        }
+        
         posts.push(post);
         drop(content);
     }
