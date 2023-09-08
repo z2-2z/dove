@@ -137,6 +137,7 @@ pub struct PostMetadata {
     date: PostDate,
     authors: Vec<String>,
     categories: Vec<String>,
+    start_content: usize,
 }
 
 impl PostMetadata {
@@ -154,6 +155,10 @@ impl PostMetadata {
     
     pub fn categories(&self) -> &[String] {
         &self.categories
+    }
+    
+    pub fn start_content(&self) -> usize {
+        self.start_content
     }
 }
 
@@ -193,20 +198,38 @@ impl<'a> PostMetadataParser<'a> {
         
         /* Title */
         let title = parser.parse_title()?;
+        parser.skip_linebreaks();
         
         /* Collect parsed metadata */
         parser.check_authors()?;
         parser.check_categories()?;
+        parser.check_content()?;
         let date = parser.date()?;
         let authors = parser.authors;
         let categories = parser.categories;
+        let start_content = parser.cursor;
         
         Ok(PostMetadata {
             title,
             date,
             authors,
             categories,
+            start_content,
         })
+    }
+    
+    fn skip_linebreaks(&mut self) {
+        let mut cursor = self.cursor;
+        
+        while let Some(byte) = self.data.get(cursor) {
+            if *byte != b'\n' {
+                break;
+            }
+            
+            cursor += 1;
+        }
+        
+        self.cursor = cursor;
     }
 
     fn find_next_stop(&self) -> Option<usize> {
@@ -374,6 +397,14 @@ impl<'a> PostMetadataParser<'a> {
             Ok(())
         }
     }
+    
+    fn check_content(&self) -> Result<(), ParsingError> {
+        if self.cursor >= self.data.len() {
+            Err(self.parsing_error("No content in post"))
+        } else {
+            Ok(())
+        }
+    }
 }
 
 #[cfg(test)]
@@ -397,7 +428,7 @@ mod tests {
     
     #[test]
     fn test_metadata() {
-        let metadata = PostMetadataParser::parse(b"date: 01-02-1970\nauthors: Me , you , John Doe \ncategories: A, B, C\n\n# Title \n", Path::new("<test>")).unwrap();
+        let metadata = PostMetadataParser::parse(b"date: 01-02-1970\nauthors: Me , you , John Doe \ncategories: A, B, C\n\n# Title \n\ncontent", Path::new("<test>")).unwrap();
         assert_eq!(metadata.date(), &PostDate {
             day: 1,
             month: 2,
