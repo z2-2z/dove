@@ -26,13 +26,18 @@ struct Args {
     input: String,
     
     #[arg(short, long, value_name = "DIR")]
-    output: String
+    output: String,
+    
+    #[arg(short, long)]
+    force: bool,
 }
 
 fn main() {
     let args = Args::parse();
     let mut posts = Vec::new();
     let mut erroneous_posts = false;
+    
+    //TODO: indicatif logger
     
     for path in PostIterator::read(&args.input) {
         let content = map_file(&path);
@@ -47,7 +52,7 @@ fn main() {
         
         let renderer = HtmlRenderer::new(&args.output, &post);
         
-        if renderer.needs_updating(&path) {
+        if args.force || renderer.needs_updating(&path) {
             renderer.render(&content, &post);
         }
         
