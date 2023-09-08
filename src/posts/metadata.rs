@@ -136,7 +136,7 @@ pub struct PostMetadata {
     title: String,
     date: PostDate,
     authors: Vec<String>,
-    //categories: Vec<String>,
+    categories: Vec<String>,
 }
 
 impl PostMetadata {
@@ -151,6 +151,10 @@ impl PostMetadata {
     pub fn authors(&self) -> &[String] {
         &self.authors
     }
+    
+    pub fn categories(&self) -> &[String] {
+        &self.categories
+    }
 }
 
 pub struct PostMetadataParser<'a> {
@@ -159,6 +163,7 @@ pub struct PostMetadataParser<'a> {
     data: &'a [u8],
     date: Option<PostDate>,
     authors: Vec<String>,
+    categories: Vec<String>,
 }
 
 impl<'a> PostMetadataParser<'a> {
@@ -169,6 +174,7 @@ impl<'a> PostMetadataParser<'a> {
             data,
             date: None,
             authors: Vec::new(),
+            categories: Vec::new(),
         };
         
         /* Lines with metadata fields */
@@ -190,14 +196,16 @@ impl<'a> PostMetadataParser<'a> {
         
         /* Collect parsed metadata */
         parser.check_authors()?;
+        parser.check_categories()?;
         let date = parser.date()?;
         let authors = parser.authors;
+        let categories = parser.categories;
         
         Ok(PostMetadata {
             title,
             date,
             authors,
-            //categories: todo!(),
+            categories,
         })
     }
 
@@ -296,7 +304,7 @@ impl<'a> PostMetadataParser<'a> {
         match &self.data[key_start..colon] {
             b"date" => self.date = Some(self.parse_date(end)?),
             b"authors" => self.authors = self.parse_list(end)?,
-            b"categories" => todo!(),
+            b"categories" => self.categories = self.parse_list(end)?,
             _ => return Err(self.parsing_error("Invalid metadata key")),
         }
         
@@ -326,11 +334,17 @@ impl<'a> PostMetadataParser<'a> {
             }
             
             /* Extract current item */
-            if start == cursor {
+            let mut end = cursor;
+            
+            while start < end && self.data[end - 1] == b' ' {
+                end -= 1;
+            }
+            
+            if start == end {
                 return Err(self.parsing_error("Empty author name"));
             }
             
-            let item = std::str::from_utf8(&self.data[start..cursor]).map_err(|_| self.parsing_error("List item contains invalid characters"))?;
+            let item = std::str::from_utf8(&self.data[start..end]).map_err(|_| self.parsing_error("List item contains invalid characters"))?;
             ret.push(item.to_string());
             
             /* Skip separator */
@@ -348,6 +362,14 @@ impl<'a> PostMetadataParser<'a> {
     fn check_authors(&self) -> Result<(), ParsingError> {
         if self.authors.is_empty() {
             Err(self.parsing_error("No authors were specified in post"))
+        } else {
+            Ok(())
+        }
+    }
+    
+    fn check_categories(&self) -> Result<(), ParsingError> {
+        if self.authors.is_empty() {
+            Err(self.parsing_error("No categories were specified in post"))
         } else {
             Ok(())
         }
@@ -370,12 +392,12 @@ mod tests {
     
     #[test]
     fn list_empty() {
-        assert!(PostMetadataParser::parse(b"authors: a,,b\n", Path::new("<test>")).is_err());
+        assert!(PostMetadataParser::parse(b"authors: a,   ,b\n", Path::new("<test>")).is_err());
     }
     
     #[test]
     fn test_metadata() {
-        let metadata = PostMetadataParser::parse(b"date: 01-02-1970\nauthors: Me, you, John Doe\n\n# Title \n", Path::new("<test>")).unwrap();
+        let metadata = PostMetadataParser::parse(b"date: 01-02-1970\nauthors: Me , you , John Doe \ncategories: A, B, C\n\n# Title \n", Path::new("<test>")).unwrap();
         assert_eq!(metadata.date(), &PostDate {
             day: 1,
             month: 2,
@@ -385,6 +407,10 @@ mod tests {
         assert_eq!(
             metadata.authors(),
             ["Me", "you", "John Doe"]
+        );
+        assert_eq!(
+            metadata.categories(),
+            ["A", "B", "C"]
         );
     }
 }
