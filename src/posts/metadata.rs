@@ -3,6 +3,7 @@ use crate::msg::{
     error_header, error_footer,
 };
 
+#[derive(Debug)]
 pub struct ParsingError {
     line: usize,
     path: PathBuf,
@@ -122,8 +123,18 @@ mod postdate_tests {
 pub struct PostMetadata {
     title: String,
     date: PostDate,
-    authors: Vec<String>,
-    categories: Vec<String>,
+    //authors: Vec<String>,
+    //categories: Vec<String>,
+}
+
+impl PostMetadata {
+    pub fn title(&self) -> &str {
+        &self.title
+    }
+    
+    pub fn date(&self) -> &PostDate {
+        &self.date
+    }
 }
 
 pub struct PostMetadataParser<'a> {
@@ -165,8 +176,8 @@ impl<'a> PostMetadataParser<'a> {
         Ok(PostMetadata {
             title,
             date,
-            authors: todo!(),
-            categories: todo!(),
+            //authors: todo!(),
+            //categories: todo!(),
         })
     }
 
@@ -190,8 +201,9 @@ impl<'a> PostMetadataParser<'a> {
     
     fn find_line_number(&self) -> usize {
         let mut lno = 1;
+        let cursor = std::cmp::min(self.cursor, self.data.len());
         
-        for i in &self.data[0..self.cursor] {
+        for i in &self.data[0..cursor] {
             if *i == b'\n' {
                 lno += 1;
             }
@@ -293,5 +305,16 @@ mod tests {
     #[test]
     fn invalid_key() {
         assert!(PostMetadataParser::parse(b"   x: y\n", Path::new("<test>")).is_err());
+    }
+    
+    #[test]
+    fn test_metadata() {
+        let metadata = PostMetadataParser::parse(b"date: 01-02-1970\n\n# Title \n", Path::new("<test>")).unwrap();
+        assert_eq!(metadata.date(), &PostDate {
+            day: 1,
+            month: 2,
+            year: 1970
+        });
+        assert_eq!(metadata.title(), "Title ");
     }
 }
