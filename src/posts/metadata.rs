@@ -93,6 +93,18 @@ impl PostDate {
             year,
         })
     }
+    
+    pub fn day(&self) -> u8 {
+        self.day
+    }
+    
+    pub fn month(&self) -> u8 {
+        self.month
+    }
+    
+    pub fn year(&self) -> u16 {
+        self.year
+    }
 }
 
 #[cfg(test)]
