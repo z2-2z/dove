@@ -1,0 +1,156 @@
+a.link {
+    text-decoration: none;
+    color: var(--link);
+}
+
+h1 {
+    border-bottom: 1px solid var(--foreground);
+    margin: 0;
+    padding: 1em 0 0.5em 0;
+    font-size: 27pt;
+    font-weight: normal;
+}
+
+span.quote, td.cite-number {
+    color: var(--quote);
+}
+
+a {
+    color: inherit;
+    text-decoration: inherit;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+#container {
+    width: 100%;
+    min-height: 100%;
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 2em 1fr 2em;
+}
+
+#item {
+    max-width: 1000px;
+    grid-column: 2;
+    overflow-x: hidden;
+}
+
+@media (min-width: 1000px) {
+    #container {
+        grid-template-columns: 2fr 4fr 2fr;
+    }
+}
+
+
+p {
+    margin: 0;
+    padding: 0;
+    font-size: 15pt;
+}
+
+h2 {
+    margin: 0;
+    padding: 0.25em 0 0.25em 0;
+    font-size: 22pt;
+    font-weight: normal;
+}
+
+div.sep {
+    border-bottom: 1px solid var(--foreground);
+    margin: 1em 0 1em 0;
+}
+
+.cite-source {
+    padding-left: 1em;
+}
+
+#citations td {
+    font-size: 14pt;
+}
+
+.figure img {
+    max-width: 100%;
+}
+
+.figure img:hover {
+    cursor: zoom-in;
+}
+
+.figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.table {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.table table {
+    min-width: 100%;
+    border-collapse: collapse;
+}
+
+.table tbody td {
+    font-size: 15pt;
+    padding: 0.2em 1em 0.2em 1em;
+    text-align: center;
+}
+
+.table thead td {
+    font-family: TestFontBold;
+    border-bottom: 1px solid var(--foreground);
+    font-size: 15pt;
+    text-align: center;
+    font-weight: bold;
+    padding: 0.2em 1em 0.2em 1em;
+}
+
+.table tbody td:not(:first-child) {
+    border-left: 1px solid var(--foreground);
+}
+
+.table tbody td:not(:last-child) {
+    border-right: 1px solid var(--foreground);
+}
+
+.table tbody tr:not(:last-child) td {
+    border-bottom: 1px solid var(--foreground);
+}
+
+.table thead td:not(:first-child) {
+    border-left: 1px solid var(--foreground);
+}
+
+.table thead td:not(:last-child) {
+    border-right: 1px solid var(--foreground);
+}
+
+.table-description {
+    text-align: center;
+}
+
+.code-block {
+    margin: 0;
+    padding: 0;
+}
+
+.code-block code {
+    font-family: CodeFont;
+    font-size: 11pt;
+    border-radius: 4px;
+    max-height: 64em;
+}
+
+.code-block code * {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.code-inline {
+    font-family: CodeFont;
+    font-size: 11pt;
+    border-radius: 4px;
+}

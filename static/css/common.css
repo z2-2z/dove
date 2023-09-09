@@ -1,0 +1,39 @@
+:root {
+    --background: #111111;
+    --code: #202020;
+    --link: #9AE19D;
+    --quote: #8C7D87;
+    --foreground: #F5F5F5;
+}
+
+@font-face {
+    font-family: "TestFont";
+    src: url("/fonts/PTSans-Regular.ttf") format("truetype"); 
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: "TestFontBold";
+    src: url("/fonts/PTSans-Bold.ttf") format("truetype");
+    font-weight: bold;
+    font-style: normal;
+}
+@font-face {
+    font-family: "CodeFont";
+    src: url("/fonts/Hack-Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+html,body {
+    color: var(--foreground);
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background);
+}
+
+* {
+    font-family: TestFont;
+}

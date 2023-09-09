@@ -1,6 +1,6 @@
 use std::path::Path;
 use std::fs::File;
-use std::io::{BufWriter, Write};
+use std::io::Write;
 use askama::Template;
 use minify_html_onepass as minify;
 
@@ -25,9 +25,7 @@ impl MinimizerRenderer {
             minify_css: true,
         };
         let minified = minify::in_place_str(&mut self.html, &config).unwrap();
-        
-        let output_file = File::create(path.as_ref()).unwrap();
-        let mut output_file = BufWriter::new(output_file);
+        let mut output_file = File::create(path.as_ref()).unwrap();
         output_file.write_all(minified.as_bytes()).unwrap();
         output_file.flush().unwrap();
     }
