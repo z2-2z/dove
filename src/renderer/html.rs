@@ -1,10 +1,8 @@
 use std::path::{PathBuf, Path};
-use std::fs::File;
-use std::io::{BufWriter, Write};
 use pulldown_cmark as md;
-use askama::Template;
 use crate::posts::post::Post;
 use crate::renderer::templates::*;
+use crate::renderer::minimize::MinimizerRenderer;
 
 pub struct HtmlRenderer {
     file: PathBuf,
@@ -27,22 +25,19 @@ impl HtmlRenderer {
     
     pub fn render(&self, content: &[u8], post: &Post) {
         std::fs::create_dir_all(self.file.parent().unwrap()).unwrap();
-        let output_file = File::create(&self.file).unwrap();
-        let mut output_file = BufWriter::new(output_file);
-        
-        PostHeader.write_into(&mut output_file).unwrap();
-        
         let content = std::str::from_utf8(&content[post.metadata().start_content()..]).unwrap();
-        
+        let mut minimizer = MinimizerRenderer::new();
         let mut options = md::Options::empty();
         options.insert(md::Options::ENABLE_TABLES);
         options.insert(md::Options::ENABLE_STRIKETHROUGH);
+        
+        minimizer.append_template(PostHeader {});
         
         for elem in md::Parser::new_ext(content, options) {
             println!("{:?}", elem);
         }
         
-        PostFooter.write_into(&mut output_file).unwrap();
-        output_file.flush().unwrap();
+        minimizer.append_template(PostFooter {});
+        minimizer.minimize(&self.file);
     }
 }
