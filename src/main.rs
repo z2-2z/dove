@@ -3,7 +3,7 @@
 mod posts;
 mod renderer;
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::fs::File;
 use memmap2::Mmap;
 use clap::Parser;
@@ -31,6 +31,34 @@ struct Args {
     #[arg(short, long)]
     force: bool,
 }
+
+/*
+fn copy_static_files(src_dir: &Path, output: &str) {
+    for entry in std::fs::read_dir(src_dir).unwrap() {
+        let src_path = entry.unwrap().path();
+        
+        if src_path.is_dir() {
+            copy_static_files(&src_path, output);
+        } else {
+            let mut dst_path = PathBuf::from(output);
+            let part: PathBuf = src_path.iter().skip(1).collect();
+            dst_path.push(part);
+            
+            let src_str = src_path.to_str().unwrap();
+            
+            if src_str.ends_with(".css") && !src_str.ends_with(".min.css") {
+                
+            } else if src_str.ends_with(".js") && !src_str.ends_with(".min.js") {
+                todo!("Minifying js currently not supported");
+            } else {
+                
+            }
+            
+            println!("{} -> {}", src_path.display(), dst_path.display());
+        }
+    }
+}
+*/
 
 fn main() {
     let args = Args::parse();
@@ -65,7 +93,12 @@ fn main() {
         exit(1);
     }
     
-    //TODO: copy static content
+    /* Copy static content */
+    /*copy_static_files(
+        Path::new("static"),
+        &args.output,
+    );*/
+    
     
     //TODO: index page, category pages, author pages
     

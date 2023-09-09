@@ -135,7 +135,6 @@ mod postdate_tests {
 pub struct PostMetadata {
     title: String,
     date: PostDate,
-    authors: Vec<String>,
     categories: Vec<String>,
     start_content: usize,
 }
@@ -147,10 +146,6 @@ impl PostMetadata {
     
     pub fn date(&self) -> &PostDate {
         &self.date
-    }
-    
-    pub fn authors(&self) -> &[String] {
-        &self.authors
     }
     
     pub fn categories(&self) -> &[String] {
@@ -166,7 +161,6 @@ pub struct PostMetadataParser<'a> {
     cursor: usize,
     data: &'a [u8],
     date: Option<PostDate>,
-    authors: Vec<String>,
     categories: Vec<String>,
 }
 
@@ -176,7 +170,6 @@ impl<'a> PostMetadataParser<'a> {
             cursor: 0,
             data,
             date: None,
-            authors: Vec::new(),
             categories: Vec::new(),
         };
         
@@ -199,18 +192,15 @@ impl<'a> PostMetadataParser<'a> {
         parser.skip_linebreaks();
         
         /* Collect parsed metadata */
-        parser.check_authors()?;
         parser.check_categories()?;
         parser.check_content()?;
         let date = parser.date()?;
-        let authors = parser.authors;
         let categories = parser.categories;
         let start_content = parser.cursor;
         
         Ok(PostMetadata {
             title,
             date,
-            authors,
             categories,
             start_content,
         })
@@ -323,7 +313,6 @@ impl<'a> PostMetadataParser<'a> {
         
         match &self.data[key_start..colon] {
             b"date" => self.date = Some(self.parse_date(end)?),
-            b"authors" => self.authors = self.parse_list(end)?,
             b"categories" => self.categories = self.parse_list(end)?,
             _ => return Err(self.parsing_error("Invalid metadata key")),
         }
@@ -379,16 +368,8 @@ impl<'a> PostMetadataParser<'a> {
         self.date.as_ref().cloned().ok_or_else(|| self.parsing_error("Post date was not set"))
     }
     
-    fn check_authors(&self) -> Result<(), ParsingError> {
-        if self.authors.is_empty() {
-            Err(self.parsing_error("No authors were specified in post"))
-        } else {
-            Ok(())
-        }
-    }
-    
     fn check_categories(&self) -> Result<(), ParsingError> {
-        if self.authors.is_empty() {
+        if self.categories.is_empty() {
             Err(self.parsing_error("No categories were specified in post"))
         } else {
             Ok(())
@@ -420,22 +401,18 @@ mod tests {
     
     #[test]
     fn list_empty() {
-        assert!(PostMetadataParser::parse(b"authors: a,   ,b\n").is_err());
+        assert!(PostMetadataParser::parse(b"categories: a,   ,b\n").is_err());
     }
     
     #[test]
     fn test_metadata() {
-        let metadata = PostMetadataParser::parse(b"date: 01-02-1970\nauthors: Me , you , John Doe \ncategories: A, B, C\n\n# Title \n\ncontent").unwrap();
+        let metadata = PostMetadataParser::parse(b"date: 01-02-1970\ncategories: A, B, C\n\n# Title \n\ncontent").unwrap();
         assert_eq!(metadata.date(), &PostDate {
             day: 1,
             month: 2,
             year: 1970
         });
         assert_eq!(metadata.title(), "Title ");
-        assert_eq!(
-            metadata.authors(),
-            ["Me", "you", "John Doe"]
-        );
         assert_eq!(
             metadata.categories(),
             ["A", "B", "C"]
