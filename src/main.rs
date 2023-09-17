@@ -101,7 +101,11 @@ fn main() {
         let renderer = HtmlRenderer::new(&args.output, &post);
         
         if args.force || needs_updating(&path, renderer.output_file()) {
-            renderer.render(&mut buffer, &content, &post);
+            if let Err(err) = renderer.render(&content, &post) {
+                eprintln!("[{}] {}", path.display(), err);
+                erroneous_posts = true;
+                continue;
+            }
         }
         
         posts.push(post);

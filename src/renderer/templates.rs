@@ -23,3 +23,22 @@ pub struct TestContent;
 pub struct Headline<'a> {
     pub headline: &'a str,
 }
+
+#[derive(Template)]
+#[template(path = "post/paragraph.html")]
+pub struct Paragraph {
+    pub content: String,
+}
+
+#[derive(Template)]
+#[template(path = "post/text.html")]
+pub struct Text<'a> {
+    pub content: &'a str,
+}
+
+#[derive(Template)]
+#[template(path = "post/subheading.html")]
+pub struct Subheading {
+    pub id: String,
+    pub content: String,
+}
