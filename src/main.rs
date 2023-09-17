@@ -62,7 +62,9 @@ fn copy_static_files(buffer: &mut String, force: bool, src_dir: &Path, output: &
                 mini::css::minimize_css(buffer, &src_path, &dst_path);
             }
         } else if needs_minification(&src_path, ".js") {
-            todo!()
+            if force || needs_updating(&src_path, &dst_path) {
+                mini::js::minimize_js(&src_path, &dst_path);
+            }
         } else if force || needs_updating(&src_path, &dst_path) {
             std::fs::copy(src_path, dst_path).unwrap();
         }
