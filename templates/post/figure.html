@@ -1,0 +1,18 @@
+{% if inside_p %}
+</p>
+{% endif %}
+
+<div class="figure" id="figure-{{ number }}">
+    <a href="{{ url|escape("none") }}" target="_blank">
+        <img src="{{ url|escape("none") }}">
+    </a>
+    <p>
+        <a href="#figure-{{ number }}">
+            <b>Figure {{ number }}{% if description.is_empty() %}</b> {% else %}:</b> {{ description|escape("none") }}{% endif %}
+        </a>
+    </p>
+</div>
+
+{% if inside_p %}
+<p>
+{% endif %}

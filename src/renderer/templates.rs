@@ -130,3 +130,12 @@ pub struct Link<'a> {
     pub url: &'a str,
     pub content: String,
 }
+
+#[derive(Template)]
+#[template(path = "post/figure.html")]
+pub struct Figure<'a> {
+    pub number: usize,
+    pub url: &'a str,
+    pub description: &'a str,
+    pub inside_p: bool,
+}

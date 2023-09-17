@@ -42,6 +42,9 @@ pub struct HtmlRenderer {
     file: PathBuf,
     tables: usize,
     description: String,
+    figures: usize,
+    p_level: usize,
+    urls: HashSet<String>,
 }
 
 impl HtmlRenderer {
@@ -52,7 +55,10 @@ impl HtmlRenderer {
         Self {
             file,
             tables: 1,
+            figures: 1,
             description: String::new(),
+            p_level: 0,
+            urls: HashSet::new(),
         }
     }
     
@@ -123,10 +129,12 @@ impl HtmlRenderer {
         match event {
             md::Event::Start(tag) => match tag {
                 md::Tag::Paragraph => {
+                    self.p_level += 1;
                     let data = self.collect(parser)?;
                     minimizer.append_template(Paragraph {
                         content: data.into_inner(),
                     });
+                    self.p_level -= 1;
                 },
                 md::Tag::Heading(level, _, _) => {
                     if !matches!(level, md::HeadingLevel::H2) {
@@ -231,13 +239,30 @@ impl HtmlRenderer {
                         url: url.as_ref(),
                         content: data.into_inner(),
                     });
+                    self.urls.insert(url.into_string());
                 },
-                _ => {},
+                md::Tag::Image(_, url, title) => {
+                    assert!(title.is_empty());
+                    self.collect(parser)?;
+                    minimizer.append_template(Figure {
+                        number: self.figures,
+                        url: url.as_ref(),
+                        description: &self.description,
+                        inside_p: self.p_level > 0,
+                    });
+                    self.figures += 1;
+                    self.description.clear();
+                    self.urls.insert(url.into_string());
+                },
             },
             md::Event::Html(tag) => {
                 match tag.as_ref() {
                     "<table-title>" => {
                         let data = self.collect_html(parser, "</table-title>")?;
+                        self.description = data.into_inner();
+                    },
+                    "<figure-title>" => {
+                        let data = self.collect_html(parser, "</figure-title>")?;
                         self.description = data.into_inner();
                     },
                     tag => return Err(MarkdownError::InvalidHtml(tag.to_string())),
@@ -289,5 +314,9 @@ impl HtmlRenderer {
         }
         
         Ok(temp)
+    }
+    
+    pub fn urls(&self) -> &HashSet<String> {
+        &self.urls
     }
 }

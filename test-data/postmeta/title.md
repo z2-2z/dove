@@ -41,3 +41,6 @@ And this is a `tag`.
 | Bananas      |  1.89 |          6 |
 
 _emphasis_ and __bold__ and ~~strikethrough~~ and [a link](url).
+
+<figure-title>Image description using _markdown_ ~~or else~~</figure-title>
+![](url)
