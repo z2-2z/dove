@@ -39,3 +39,5 @@ And this is a `tag`.
 |--------------|:-----:|-----------:|
 | Juicy Apples |  1.99 |        739 |
 | Bananas      |  1.89 |          6 |
+
+_emphasis_ and __bold__ and ~~strikethrough~~

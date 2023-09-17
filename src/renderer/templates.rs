@@ -105,3 +105,21 @@ pub struct TableRow {
 pub struct TableCell {
     pub content: String,
 }
+
+#[derive(Template)]
+#[template(path = "post/emphasis.html")]
+pub struct Emphasis {
+    pub content: String,
+}
+
+#[derive(Template)]
+#[template(path = "post/bold.html")]
+pub struct Bold {
+    pub content: String,
+}
+
+#[derive(Template)]
+#[template(path = "post/strikethrough.html")]
+pub struct Strikethrough {
+    pub content: String,
+}

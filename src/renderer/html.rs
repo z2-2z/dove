@@ -206,6 +206,24 @@ impl HtmlRenderer {
                         content: data.into_inner(),
                     });
                 },
+                md::Tag::Emphasis => {
+                    let data = self.collect(parser)?;
+                    minimizer.append_template(Emphasis {
+                        content: data.into_inner(),
+                    });
+                },
+                md::Tag::Strong => {
+                    let data = self.collect(parser)?;
+                    minimizer.append_template(Bold {
+                        content: data.into_inner(),
+                    });
+                },
+                md::Tag::Strikethrough => {
+                    let data = self.collect(parser)?;
+                    minimizer.append_template(Strikethrough {
+                        content: data.into_inner(),
+                    });
+                },
                 _ => {},
             },
             md::Event::Html(tag) => {
