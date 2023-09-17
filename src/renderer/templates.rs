@@ -123,3 +123,10 @@ pub struct Bold {
 pub struct Strikethrough {
     pub content: String,
 }
+
+#[derive(Template)]
+#[template(path = "post/link.html")]
+pub struct Link<'a> {
+    pub url: &'a str,
+    pub content: String,
+}

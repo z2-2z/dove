@@ -224,6 +224,14 @@ impl HtmlRenderer {
                         content: data.into_inner(),
                     });
                 },
+                md::Tag::Link(_, url, title) => {
+                    assert!(title.is_empty());
+                    let data = self.collect(parser)?;
+                    minimizer.append_template(Link {
+                        url: url.as_ref(),
+                        content: data.into_inner(),
+                    });
+                },
                 _ => {},
             },
             md::Event::Html(tag) => {
