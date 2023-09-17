@@ -31,17 +31,21 @@ a {
 }
 
 #item {
-    max-width: 1000px;
     grid-column: 2;
     overflow-x: hidden;
 }
 
 @media (min-width: 1000px) {
     #container {
-        grid-template-columns: 2fr 4fr 2fr;
+        grid-template-columns: 3fr 5fr 3fr;
     }
 }
 
+@media (min-width: 2000px) {
+    #container {
+        grid-template-columns: 3fr 3fr 3fr;
+    }
+}
 
 p {
     margin: 0;
