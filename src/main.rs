@@ -14,6 +14,10 @@ use posts::{
 };
 use renderer::html::HtmlRenderer;
 use std::process::exit;
+use mimalloc::MiMalloc;
+
+#[global_allocator]
+static GLOBAL: MiMalloc = MiMalloc;
 
 fn map_file<P: AsRef<Path>>(path: P) -> Mmap {
     let file = File::open(path).unwrap();
