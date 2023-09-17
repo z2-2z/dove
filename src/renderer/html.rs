@@ -24,18 +24,24 @@ fn make_id(id: &str) -> String {
 
 pub enum MarkdownError {
     InvalidHeading,
+    Footnote,
+    InvalidHtml(String),
 }
 
 impl std::fmt::Display for MarkdownError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             MarkdownError::InvalidHeading => write!(f, "Invalid heading. Only heading level 2 allowed"),
+            MarkdownError::Footnote => write!(f, "Footnotes are not supported"),
+            MarkdownError::InvalidHtml(tag) => write!(f, "Invalid html tag: {}", tag),
         }
     }
 }
 
 pub struct HtmlRenderer {
     file: PathBuf,
+    tables: usize,
+    description: String,
 }
 
 impl HtmlRenderer {
@@ -45,6 +51,8 @@ impl HtmlRenderer {
         
         Self {
             file,
+            tables: 1,
+            description: String::new(),
         }
     }
     
@@ -52,7 +60,7 @@ impl HtmlRenderer {
         &self.file
     }
     
-    pub fn render(&self, content: &[u8], post: &Post) -> Result<(), MarkdownError>  {
+    pub fn render(&mut self, content: &[u8], post: &Post) -> Result<(), MarkdownError>  {
         std::fs::create_dir_all(self.file.parent().unwrap()).unwrap();
         let content = std::str::from_utf8(&content[post.metadata().start_content()..]).unwrap();
         let mut minimizer = HtmlMinimizer::new();
@@ -111,7 +119,7 @@ impl HtmlRenderer {
         Ok(())
     }
     
-    fn dispatch(&self, event: md::Event, parser: &mut md::Parser, minimizer: &mut HtmlMinimizer) -> Result<(), MarkdownError> {
+    fn dispatch(&mut self, event: md::Event, parser: &mut md::Parser, minimizer: &mut HtmlMinimizer) -> Result<(), MarkdownError> {
         match event {
             md::Event::Start(tag) => match tag {
                 md::Tag::Paragraph => {
@@ -167,7 +175,47 @@ impl HtmlRenderer {
                         content: data.into_inner(),
                     });
                 },
+                md::Tag::FootnoteDefinition(_) => {
+                    return Err(MarkdownError::Footnote);
+                },
+                md::Tag::Table(_) => {
+                    let data = self.collect(parser)?;
+                    minimizer.append_template(Table {
+                        number: self.tables,
+                        content: data.into_inner(),
+                        description: &self.description,
+                    });
+                    self.tables += 1;
+                    self.description.clear();
+                },
+                md::Tag::TableHead => {
+                    let data = self.collect(parser)?;
+                    minimizer.append_template(TableHead {
+                        content: data.into_inner(),
+                    });
+                },
+                md::Tag::TableRow => {
+                    let data = self.collect(parser)?;
+                    minimizer.append_template(TableRow {
+                        content: data.into_inner(),
+                    });
+                },
+                md::Tag::TableCell => {
+                    let data = self.collect(parser)?;
+                    minimizer.append_template(TableCell {
+                        content: data.into_inner(),
+                    });
+                },
                 _ => {},
+            },
+            md::Event::Html(tag) => {
+                match tag.as_ref() {
+                    "<table-title>" => {
+                        let data = self.collect_html(parser, "</table-title>")?;
+                        self.description = data.into_inner();
+                    },
+                    tag => return Err(MarkdownError::InvalidHtml(tag.to_string())),
+                }
             },
             md::Event::Code(content) => {
                 minimizer.append_template(Tag {
@@ -186,7 +234,7 @@ impl HtmlRenderer {
         Ok(())
     }
     
-    fn collect(&self, parser: &mut md::Parser) -> Result<HtmlMinimizer, MarkdownError> {
+    fn collect(&mut self, parser: &mut md::Parser) -> Result<HtmlMinimizer, MarkdownError> {
         let mut temp = HtmlMinimizer::new();
         
         while let Some(event) = parser.next() {
@@ -196,6 +244,22 @@ impl HtmlRenderer {
                 },
                 event => self.dispatch(event, parser, &mut temp)?,
             }
+        }
+        
+        Ok(temp)
+    }
+    
+    fn collect_html(&mut self, parser: &mut md::Parser, end_tag: &str) -> Result<HtmlMinimizer, MarkdownError> {
+        let mut temp = HtmlMinimizer::new();
+        
+        while let Some(event) = parser.next() {
+            if let md::Event::Html(tag) = &event {
+                if tag.as_ref() == end_tag {
+                    break;
+                }
+            }
+            
+            self.dispatch(event, parser, &mut temp)?;
         }
         
         Ok(temp)

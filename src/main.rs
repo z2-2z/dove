@@ -97,7 +97,7 @@ fn main() {
             },
         };
         
-        let renderer = HtmlRenderer::new(&args.output, &post);
+        let mut renderer = HtmlRenderer::new(&args.output, &post);
         
         if args.force || needs_updating(&path, renderer.output_file()) {
             if let Err(err) = renderer.render(&content, &post) {

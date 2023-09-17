@@ -79,3 +79,29 @@ pub struct UnorderedList {
 pub struct ListItem {
     pub content: String,
 }
+
+#[derive(Template)]
+#[template(path = "post/table.html")]
+pub struct Table<'a> {
+    pub number: usize,
+    pub content: String,
+    pub description: &'a str,
+}
+
+#[derive(Template)]
+#[template(path = "post/table_head.html")]
+pub struct TableHead {
+    pub content: String,
+}
+
+#[derive(Template)]
+#[template(path = "post/table_row.html")]
+pub struct TableRow {
+    pub content: String,
+}
+
+#[derive(Template)]
+#[template(path = "post/table_cell.html")]
+pub struct TableCell {
+    pub content: String,
+}
