@@ -31,6 +31,9 @@ struct Args {
     
     #[arg(short, long)]
     force: bool,
+    
+    #[arg(long, default_value_t = String::from("static"))]
+    static_folder: String,
 }
 
 #[inline]
@@ -109,7 +112,7 @@ fn main() {
     copy_static_files(
         &mut buffer,
         args.force,
-        Path::new("static"),
+        Path::new(&args.static_folder),
         &args.output,
     );
     
