@@ -9,3 +9,10 @@ categories: bli, bla, blubb
 asdf
 > quote123
 > yeet
+
+```python
+if __name__ == "__main__":
+    main()
+```
+
+And this is a `tag`.

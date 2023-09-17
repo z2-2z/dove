@@ -48,3 +48,16 @@ pub struct Subheading {
 pub struct Quote {
     pub content: String,
 }
+
+#[derive(Template)]
+#[template(path = "post/codeblock.html")]
+pub struct Codeblock {
+    pub language: String,
+    pub content: String,
+}
+
+#[derive(Template)]
+#[template(path = "post/tag.html")]
+pub struct Tag<'a> {
+    pub content: &'a str,
+}

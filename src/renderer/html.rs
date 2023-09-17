@@ -137,7 +137,23 @@ impl HtmlRenderer {
                         content: data.into_inner(),
                     });
                 },
+                md::Tag::CodeBlock(kind) => {
+                    let language = match kind {
+                        md::CodeBlockKind::Indented => "plaintext".to_string(),
+                        md::CodeBlockKind::Fenced(language) => language.as_ref().to_ascii_lowercase(),
+                    };
+                    let data = self.collect(parser)?;
+                    minimizer.append_template(Codeblock {
+                        language,
+                        content: data.into_inner(),
+                    });
+                },
                 _ => {},
+            },
+            md::Event::Code(content) => {
+                minimizer.append_template(Tag {
+                    content: content.as_ref(),
+                });
             },
             md::Event::Text(text) => {
                 minimizer.append_template(Text {
