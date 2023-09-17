@@ -1,5 +1,7 @@
 use std::path::{PathBuf, Path};
+use std::borrow::Borrow;
 use pulldown_cmark as md;
+use std::collections::HashSet;
 use crate::posts::post::Post;
 use crate::renderer::templates::*;
 use crate::mini::html::HtmlMinimizer;
@@ -29,12 +31,43 @@ impl HtmlRenderer {
         let mut options = md::Options::empty();
         options.insert(md::Options::ENABLE_TABLES);
         options.insert(md::Options::ENABLE_STRIKETHROUGH);
+        let mut uses_code = false;
+        let mut languages: HashSet<String> = HashSet::new();
         
-        minimizer.append_template(PostHeader {});
+        /* Check for code blocks */
+        for elem in md::Parser::new_ext(content, options) {
+            match elem {
+                md::Event::Code(_) => uses_code = true,
+                md::Event::Start(md::Tag::CodeBlock(kind)) => match kind {
+                    md::CodeBlockKind::Indented => todo!("what does this mean?"),
+                    md::CodeBlockKind::Fenced(language) => {
+                        uses_code = true;
+                        let language = match language.as_ref() {
+                            "" => "plaintext".to_string(),
+                            language => language.to_ascii_lowercase(),
+                        };
+                        languages.insert(language);
+                    },
+                },
+                _ => {},
+            }
+        }
+        
+        /* Generate html */
+        minimizer.append_template(PostHeader {
+            title: post.metadata().title(),
+            uses_code,
+            languages,
+        });
+        minimizer.append_template(Headline {
+            headline: post.metadata().title(),
+        });
         
         #[cfg(not(feature = "test-content"))]
-        for elem in md::Parser::new_ext(content, options) {
-            println!("{:?}", elem);
+        {
+            for elem in md::Parser::new_ext(content, options) {
+                println!("{:?}", elem);
+            }
         }
         
         #[cfg(feature = "test-content")]

@@ -1,18 +1,26 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <!-- TODO: only include stuff that is needed -->
+        <meta charset="UTF-8">
+        <title>{{ title }}</title>
         <link rel="stylesheet" href="/css/normalize.css"/>
         <link rel="stylesheet" href="/css/common.css"/>
         <link rel="stylesheet" href="/css/post.css"/>
-        <link rel="stylesheet" href="/css/atom-one-dark.min.css"/>
         
-        <script src="/js/highlight.min.js"></script>
-        <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                hljs.highlightAll();
-            });
-        </script>
+        {% if uses_code %}
+            <link rel="stylesheet" href="/css/atom-one-dark.min.css"/>
+            
+            <script src="/js/highlight.min.js"></script>
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    hljs.highlightAll();
+                });
+            </script>
+            
+            {% for language in languages %}
+                <script src="/js/hljs/{{ language }}.min.js"></script>
+            {% endfor %}
+        {% endif %}
     </head>
     <body>
         <div id="container">

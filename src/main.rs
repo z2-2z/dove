@@ -86,7 +86,7 @@ fn main() {
     
     //TODO: indicatif logger
     
-    /* Generate individual posts */
+    /* Generate posts */
     for path in PostIterator::read(&args.input) {
         let content = map_file(&path);
         let post = match Post::new(&content) {
