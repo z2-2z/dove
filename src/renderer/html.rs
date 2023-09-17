@@ -18,9 +18,8 @@ impl HtmlRenderer {
         }
     }
     
-    pub fn needs_updating(&self, source_file: &Path) -> bool {
-        !self.file.exists() ||
-        source_file.metadata().unwrap().modified().unwrap() > self.file.metadata().unwrap().modified().unwrap()
+    pub fn output_file(&self) -> &Path {
+        &self.file
     }
     
     pub fn render(&self, buffer: &mut String, content: &[u8], post: &Post) {

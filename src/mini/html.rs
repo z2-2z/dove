@@ -10,6 +10,7 @@ pub struct HtmlMinimizer<'a> {
 
 impl<'a> HtmlMinimizer<'a> {
     pub fn new(html: &'a mut String) -> Self {
+        html.clear();
         Self {
             html,
         }

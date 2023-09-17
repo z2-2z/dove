@@ -34,11 +34,17 @@ struct Args {
 }
 
 #[inline]
+fn needs_updating(src: &Path, dst: &Path) -> bool {
+    !dst.exists() ||
+    src.metadata().unwrap().modified().unwrap() > dst.metadata().unwrap().modified().unwrap()
+}
+
+#[inline]
 fn needs_minification(path: &Path, ext: &str) -> bool {
     path.to_string_lossy().strip_suffix(ext).map(|x| x.ends_with(".min")) == Some(false)
 }
 
-fn copy_static_files(src_dir: &Path, output: &str) {
+fn copy_static_files(buffer: &mut String, force: bool, src_dir: &Path, output: &str) {
     for entry in std::fs::read_dir(src_dir).unwrap() {
         let src_path = entry.unwrap().path();
         
@@ -50,12 +56,14 @@ fn copy_static_files(src_dir: &Path, output: &str) {
             if !dst_path.exists() {
                 std::fs::create_dir(&dst_path).unwrap();
             }
-            copy_static_files(&src_path, output);
+            copy_static_files(buffer, force, &src_path, output);
         } else if needs_minification(&src_path, ".css") {
-            todo!()
+            if force || needs_updating(&src_path, &dst_path) {
+                mini::css::minimize_css(buffer, &src_path, &dst_path);
+            }
         } else if needs_minification(&src_path, ".js") {
             todo!()
-        } else {
+        } else if force || needs_updating(&src_path, &dst_path) {
             std::fs::copy(src_path, dst_path).unwrap();
         }
     }
@@ -83,8 +91,7 @@ fn main() {
         
         let renderer = HtmlRenderer::new(&args.output, &post);
         
-        if args.force || renderer.needs_updating(&path) {
-            buffer.clear();
+        if args.force || needs_updating(&path, renderer.output_file()) {
             renderer.render(&mut buffer, &content, &post);
         }
         
@@ -98,10 +105,11 @@ fn main() {
     
     /* Copy static content */
     copy_static_files(
+        &mut buffer,
+        args.force,
         Path::new("static"),
         &args.output,
     );
-    
     
     //TODO: index page, category pages, author pages
     
