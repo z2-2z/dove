@@ -64,6 +64,8 @@ impl HtmlRenderer {
         
         /* Check for code blocks */
         for elem in md::Parser::new_ext(content, options) {
+            println!("{:?}", elem);
+            
             match elem {
                 md::Event::Code(_) => uses_code = true,
                 md::Event::Start(md::Tag::CodeBlock(kind)) => match kind {
@@ -127,6 +129,12 @@ impl HtmlRenderer {
                     minimizer.append_template(Subheading {
                         content: data,
                         id,
+                    });
+                },
+                md::Tag::BlockQuote => {
+                    let data = self.collect(parser)?;
+                    minimizer.append_template(Quote {
+                        content: data.into_inner(),
                     });
                 },
                 _ => {},

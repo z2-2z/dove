@@ -154,3 +154,10 @@ div.sep {
     font-size: 11pt;
     border-radius: 4px;
 }
+
+.blockquote {
+    background-color: var(--code);
+    border-left: 1pt solid var(--foreground);
+    border-right:1pt solid var(--foreground);
+    padding: 0 1em 0 1em;
+  }

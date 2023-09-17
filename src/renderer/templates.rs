@@ -42,3 +42,9 @@ pub struct Subheading {
     pub id: String,
     pub content: String,
 }
+
+#[derive(Template)]
+#[template(path = "post/quote.html")]
+pub struct Quote {
+    pub content: String,
+}
