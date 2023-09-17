@@ -148,6 +148,25 @@ impl HtmlRenderer {
                         content: data.into_inner(),
                     });
                 },
+                md::Tag::List(start_number) => {
+                    if start_number.is_some() {
+                        let data = self.collect(parser)?;
+                        minimizer.append_template(OrderedList {
+                            items: data.into_inner(),
+                        });
+                    } else {
+                        let data = self.collect(parser)?;
+                        minimizer.append_template(UnorderedList {
+                            items: data.into_inner(),
+                        });
+                    }
+                },
+                md::Tag::Item => {
+                    let data = self.collect(parser)?;
+                    minimizer.append_template(ListItem {
+                        content: data.into_inner(),
+                    });
+                },
                 _ => {},
             },
             md::Event::Code(content) => {

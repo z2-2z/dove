@@ -47,10 +47,13 @@ a {
     }
 }
 
+p, li {
+    font-size: 15pt;
+}
+
 p {
     margin: 0;
     padding: 0;
-    font-size: 15pt;
 }
 
 h2 {
@@ -166,4 +169,10 @@ div.sep {
     border-left: 1pt solid var(--foreground);
     border-right:1pt solid var(--foreground);
     padding: 0 1em 0 1em;
-  }
+}
+
+ul, ol {
+    margin: 0;
+    padding: 0;
+    padding-left: 1.75em;
+}

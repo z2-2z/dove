@@ -61,3 +61,21 @@ pub struct Codeblock {
 pub struct Tag<'a> {
     pub content: &'a str,
 }
+
+#[derive(Template)]
+#[template(path = "post/ordered_list.html")]
+pub struct OrderedList {
+    pub items: String,
+}
+
+#[derive(Template)]
+#[template(path = "post/unordered_list.html")]
+pub struct UnorderedList {
+    pub items: String,
+}
+
+#[derive(Template)]
+#[template(path = "post/list_item.html")]
+pub struct ListItem {
+    pub content: String,
+}

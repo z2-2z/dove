@@ -16,3 +16,11 @@ if __name__ == "__main__":
 ```
 
 And this is a `tag`.
+
+- List item 1
+- List item 2
+- List item 3 with `tag`
+
+1. abc
+2. def
+3. ghi
