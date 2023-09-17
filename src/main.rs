@@ -2,6 +2,7 @@
 
 mod posts;
 mod renderer;
+mod mini;
 
 use std::path::{Path, PathBuf};
 use std::fs::File;
@@ -32,38 +33,39 @@ struct Args {
     force: bool,
 }
 
-/*
+#[inline]
+fn needs_minification(path: &Path, ext: &str) -> bool {
+    path.to_string_lossy().strip_suffix(ext).map(|x| x.ends_with(".min")) == Some(false)
+}
+
 fn copy_static_files(src_dir: &Path, output: &str) {
     for entry in std::fs::read_dir(src_dir).unwrap() {
         let src_path = entry.unwrap().path();
         
+        let mut dst_path = PathBuf::from(output);
+        let part: PathBuf = src_path.iter().skip(1).collect();
+        dst_path.push(part);
+        
         if src_path.is_dir() {
-            copy_static_files(&src_path, output);
-        } else {
-            let mut dst_path = PathBuf::from(output);
-            let part: PathBuf = src_path.iter().skip(1).collect();
-            dst_path.push(part);
-            
-            let src_str = src_path.to_str().unwrap();
-            
-            if src_str.ends_with(".css") && !src_str.ends_with(".min.css") {
-                
-            } else if src_str.ends_with(".js") && !src_str.ends_with(".min.js") {
-                todo!("Minifying js currently not supported");
-            } else {
-                
+            if !dst_path.exists() {
+                std::fs::create_dir(&dst_path).unwrap();
             }
-            
-            println!("{} -> {}", src_path.display(), dst_path.display());
+            copy_static_files(&src_path, output);
+        } else if needs_minification(&src_path, ".css") {
+            todo!()
+        } else if needs_minification(&src_path, ".js") {
+            todo!()
+        } else {
+            std::fs::copy(src_path, dst_path).unwrap();
         }
     }
 }
-*/
 
 fn main() {
     let args = Args::parse();
     let mut posts = Vec::new();
     let mut erroneous_posts = false;
+    let mut buffer = String::with_capacity(4096);
     
     //TODO: indicatif logger
     
@@ -82,7 +84,8 @@ fn main() {
         let renderer = HtmlRenderer::new(&args.output, &post);
         
         if args.force || renderer.needs_updating(&path) {
-            renderer.render(&content, &post);
+            buffer.clear();
+            renderer.render(&mut buffer, &content, &post);
         }
         
         posts.push(post);
@@ -94,10 +97,10 @@ fn main() {
     }
     
     /* Copy static content */
-    /*copy_static_files(
+    copy_static_files(
         Path::new("static"),
         &args.output,
-    );*/
+    );
     
     
     //TODO: index page, category pages, author pages
