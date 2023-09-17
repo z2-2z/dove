@@ -7,3 +7,8 @@ pub struct PostHeader;
 #[derive(Template)]
 #[template(path = "post/footer.html")]
 pub struct PostFooter;
+
+#[cfg(feature = "test-content")]
+#[derive(Template)]
+#[template(path = "test/content.html")]
+pub struct TestContent;

@@ -113,7 +113,7 @@ fn main() {
         &args.output,
     );
     
-    //TODO: index page, category pages, author pages
+    //TODO: index page, category pages
     
     exit(0);
 }

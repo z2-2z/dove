@@ -32,9 +32,13 @@ impl HtmlRenderer {
         
         minimizer.append_template(PostHeader {});
         
+        #[cfg(not(feature = "test-content"))]
         for elem in md::Parser::new_ext(content, options) {
             println!("{:?}", elem);
         }
+        
+        #[cfg(feature = "test-content")]
+        minimizer.append_template(TestContent {});
         
         minimizer.append_template(PostFooter {});
         minimizer.minimize(&self.file);
