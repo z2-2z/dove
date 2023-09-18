@@ -86,7 +86,7 @@ fn main() {
     //TODO: indicatif logger
     
     /* Generate posts */
-    for path in PostIterator::read(&args.input) {
+    for mut path in PostIterator::read(&args.input) {
         let content = map_file(&path);
         let post = match Post::new(&content) {
             Ok(post) => post,
@@ -104,6 +104,22 @@ fn main() {
                 eprintln!("[{}] {}", path.display(), err);
                 erroneous_posts = true;
                 continue;
+            }
+            
+            assert!(path.pop());
+            let src_base = path;
+            let mut dst_base = renderer.output_file().to_path_buf();
+            assert!(dst_base.pop());
+            
+            for url in renderer.urls() {
+                if !url.contains("://") {
+                    let src = src_base.join(url);
+                    
+                    if src.exists() {
+                        let dst = dst_base.join(url);
+                        std::fs::copy(src, dst).unwrap();
+                    }
+                }
             }
         }
         

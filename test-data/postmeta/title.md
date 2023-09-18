@@ -6,6 +6,7 @@ categories: bli, bla, blubb
 ?
 
 ## Hello this is subheading
+
 asdf
 > quote123
 > yeet
@@ -43,8 +44,11 @@ And this is a `tag`.
 _emphasis_ and __bold__ and ~~strikethrough~~ and [a link](url).
 
 <figure-title>Image description using _markdown_ ~~or else~~</figure-title>
-![](url)
+![](./test.png)
 
 text with<br>
 hardbreak or     
 other hardbreak
+
+download file: [file.txt](./file.txt)
+not a file: [?](http://duckduckgo.com)
