@@ -44,3 +44,7 @@ _emphasis_ and __bold__ and ~~strikethrough~~ and [a link](url).
 
 <figure-title>Image description using _markdown_ ~~or else~~</figure-title>
 ![](url)
+
+text with<br>
+hardbreak or     
+other hardbreak

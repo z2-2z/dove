@@ -139,3 +139,7 @@ pub struct Figure<'a> {
     pub description: &'a str,
     pub inside_p: bool,
 }
+
+#[derive(Template)]
+#[template(path = "post/linebreak.html")]
+pub struct Linebreak;

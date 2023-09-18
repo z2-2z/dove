@@ -26,6 +26,8 @@ pub enum MarkdownError {
     InvalidHeading,
     Footnote,
     InvalidHtml(String),
+    Rule,
+    TaskList,
 }
 
 impl std::fmt::Display for MarkdownError {
@@ -34,6 +36,8 @@ impl std::fmt::Display for MarkdownError {
             MarkdownError::InvalidHeading => write!(f, "Invalid heading. Only heading level 2 allowed"),
             MarkdownError::Footnote => write!(f, "Footnotes are not supported"),
             MarkdownError::InvalidHtml(tag) => write!(f, "Invalid html tag: {}", tag),
+            MarkdownError::Rule => write!(f, "Rules are not supported"),
+            MarkdownError::TaskList => write!(f, "Tasklists are not supported"),
         }
     }
 }
@@ -265,6 +269,9 @@ impl HtmlRenderer {
                         let data = self.collect_html(parser, "</figure-title>")?;
                         self.description = data.into_inner();
                     },
+                    "<br>" | "<br/>" => {
+                        minimizer.append_template(Linebreak {});
+                    },
                     tag => return Err(MarkdownError::InvalidHtml(tag.to_string())),
                 }
             },
@@ -278,8 +285,14 @@ impl HtmlRenderer {
                     content: text.as_ref(),
                 });
             },
+            md::Event::FootnoteReference(_) => return Err(MarkdownError::Footnote),
+            md::Event::SoftBreak => {},
+            md::Event::HardBreak => {
+                minimizer.append_template(Linebreak {});
+            },
+            md::Event::Rule => return Err(MarkdownError::Rule),
             md::Event::End(_) => unreachable!(),
-            _ => {},
+            md::Event::TaskListMarker(_) => return Err(MarkdownError::TaskList),
         }
         
         Ok(())
