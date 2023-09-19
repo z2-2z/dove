@@ -155,3 +155,9 @@ pub struct Bibliography {
 pub struct Citation {
     pub ids: Vec<usize>,
 }
+
+#[derive(Template)]
+#[template(path = "post/categories.html")]
+pub struct Categories<'a> {
+    pub categories: &'a [String],
+}

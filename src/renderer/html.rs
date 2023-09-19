@@ -98,8 +98,6 @@ impl HtmlRenderer {
         
         /* Check for code blocks */
         for elem in md::Parser::new_ext(content, options) {
-            println!("{:?}", elem);
-            
             match elem {
                 md::Event::Code(_) => uses_code = true,
                 md::Event::Start(md::Tag::CodeBlock(kind)) => match kind {
@@ -125,6 +123,9 @@ impl HtmlRenderer {
         });
         minimizer.append_template(Headline {
             headline: post.metadata().title(),
+        });
+        minimizer.append_template(Categories {
+            categories: post.metadata().categories(),
         });
         
         #[cfg(not(feature = "test-content"))]
