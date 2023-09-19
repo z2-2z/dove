@@ -143,3 +143,15 @@ pub struct Figure<'a> {
 #[derive(Template)]
 #[template(path = "post/linebreak.html")]
 pub struct Linebreak;
+
+#[derive(Template)]
+#[template(path = "post/bibliography.html")]
+pub struct Bibliography {
+    pub references: Vec<(usize, String)>,
+}
+
+#[derive(Template)]
+#[template(path = "post/cite.html")]
+pub struct Citation {
+    pub ids: Vec<usize>,
+}

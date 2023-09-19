@@ -50,5 +50,12 @@ text with<br>
 hardbreak or     
 other hardbreak
 
-download file: [file.txt](./file.txt)
+download file: [file.txt](./file.txt)<br>
 not a file: [?](http://duckduckgo.com)
+
+I am citing <cite>id1, id2</cite>.
+
+---
+<reference id="id1">some __markdown__: probably a [link](somewhere)</reference>
+<reference id="id2">or just some text</reference>
+

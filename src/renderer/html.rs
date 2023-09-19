@@ -1,6 +1,6 @@
 use std::path::{PathBuf, Path};
 use pulldown_cmark as md;
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap};
 use crate::posts::post::Post;
 use crate::renderer::templates::*;
 use crate::mini::html::HtmlMinimizer;
@@ -26,8 +26,13 @@ pub enum MarkdownError {
     InvalidHeading,
     Footnote,
     InvalidHtml(String),
-    Rule,
     TaskList,
+    NonUtf8,
+    NoRefId,
+    InvalidRefId(String),
+    NoBibliography,
+    InvalidBibliography(&'static str),
+    NoCitation(String),
 }
 
 impl std::fmt::Display for MarkdownError {
@@ -36,8 +41,13 @@ impl std::fmt::Display for MarkdownError {
             MarkdownError::InvalidHeading => write!(f, "Invalid heading. Only heading level 2 allowed"),
             MarkdownError::Footnote => write!(f, "Footnotes are not supported"),
             MarkdownError::InvalidHtml(tag) => write!(f, "Invalid html tag: {}", tag),
-            MarkdownError::Rule => write!(f, "Rules are not supported"),
             MarkdownError::TaskList => write!(f, "Tasklists are not supported"),
+            MarkdownError::NonUtf8 => write!(f, "Post content is not utf-8"),
+            MarkdownError::NoRefId => write!(f, "Reference tag in bibliography has no id attribute"),
+            MarkdownError::InvalidRefId(id) => write!(f, "The bibliography has an entry with id '{}' but this id is never referenced", id),
+            MarkdownError::NoBibliography => write!(f, "After a rule only reference elements are allowed to build the bibliography"),
+            MarkdownError::InvalidBibliography(msg) => write!(f, "Bibliography is invalid: {}", msg),
+            MarkdownError::NoCitation(id) => write!(f, "Bibliography entry for '{}' is missing", id),
         }
     }
 }
@@ -49,6 +59,8 @@ pub struct HtmlRenderer {
     figures: usize,
     p_level: usize,
     urls: HashSet<String>,
+    citations: HashMap<String, usize>,
+    citations_cursor: usize,
 }
 
 impl HtmlRenderer {
@@ -63,6 +75,8 @@ impl HtmlRenderer {
             description: String::new(),
             p_level: 0,
             urls: HashSet::new(),
+            citations: HashMap::new(),
+            citations_cursor: 1,
         }
     }
     
@@ -82,6 +96,8 @@ impl HtmlRenderer {
         
         /* Check for code blocks */
         for elem in md::Parser::new_ext(content, options) {
+            println!("{:?}", elem);
+            
             match elem {
                 md::Event::Code(_) => uses_code = true,
                 md::Event::Start(md::Tag::CodeBlock(kind)) => match kind {
@@ -270,6 +286,29 @@ impl HtmlRenderer {
                     "<br>" | "<br/>" => {
                         minimizer.append_template(Linebreak {});
                     },
+                    "<cite>" => {
+                        let data = self.collect_html(parser, "</cite>")?.into_inner();
+                        let mut ids = Vec::new();
+                        
+                        for cite_id in data.split(',') {
+                            for cite_id in cite_id.split(' ') {
+                                if !cite_id.is_empty() {
+                                    if let Some(id) = self.citations.get(cite_id) {
+                                        ids.push(*id);
+                                    } else {
+                                        let id = self.citations_cursor;
+                                        self.citations_cursor += 1;
+                                        self.citations.insert(cite_id.to_string(), id);
+                                        ids.push(id);
+                                    }
+                                }
+                            }
+                        }
+                        
+                        minimizer.append_template(Citation {
+                            ids,
+                        });
+                    },
                     tag => return Err(MarkdownError::InvalidHtml(tag.to_string())),
                 }
             },
@@ -288,7 +327,10 @@ impl HtmlRenderer {
             md::Event::HardBreak => {
                 minimizer.append_template(Linebreak {});
             },
-            md::Event::Rule => return Err(MarkdownError::Rule),
+            md::Event::Rule => {
+                assert_eq!(self.p_level, 0);
+                self.parse_bibliography(parser, minimizer)?;
+            },
             md::Event::End(_) => unreachable!(),
             md::Event::TaskListMarker(_) => return Err(MarkdownError::TaskList),
         }
@@ -325,6 +367,97 @@ impl HtmlRenderer {
         }
         
         Ok(temp)
+    }
+    
+    fn parse_reference_tag(&self, parser: &mut md::Parser) -> Result<usize, MarkdownError> {
+        let event = parser.next();
+        let tag = match &event {
+            Some(md::Event::Html(tag)) => tag.as_ref(),
+            _ => return Err(MarkdownError::InvalidBibliography("Only reference tags allowed")),
+        };
+        
+        if !tag.starts_with("<reference ") || !tag.ends_with('>') {
+            return Err(MarkdownError::NoBibliography);
+        }
+        
+        let tag = tag.as_bytes();
+        let mut cursor = 11;
+        
+        /* skip spaces */
+        while tag.get(cursor).copied() == Some(b' ') {
+            cursor += 1;
+        }
+        
+        /* expect id=" */
+        if tag.get(cursor..cursor + 4) != Some(b"id=\"") {
+            return Err(MarkdownError::NoRefId);
+        }
+        
+        cursor += 4;
+        
+        /* Extract id */
+        let start = cursor;
+        
+        while tag.get(cursor).copied() != Some(b'"') {
+            cursor += 1;
+        }
+        
+        if cursor >= tag.len() {
+            return Err(MarkdownError::NoRefId);
+        }
+        
+        let id = std::str::from_utf8(&tag[start..cursor]).map_err(|_| MarkdownError::NonUtf8)?;
+        
+        if let Some(id) = self.citations.get(id) {
+            Ok(*id)
+        } else {
+            Err(MarkdownError::InvalidRefId(id.to_string()))
+        }
+    }
+    
+    fn parse_bibliography(&mut self, parser: &mut md::Parser, minimizer: &mut HtmlMinimizer) -> Result<(), MarkdownError> {
+        let mut bib = Vec::new();
+        
+        assert!(matches!(parser.next(), Some(md::Event::Start(md::Tag::Paragraph))));
+        
+        loop {
+            let id = self.parse_reference_tag(parser)?;
+            let data = self.collect_html(parser, "</reference>")?.into_inner();
+            
+            bib.push((id, data));
+            
+            match parser.next() {
+                Some(md::Event::End(md::Tag::Paragraph)) => {
+                    break;
+                },
+                Some(md::Event::SoftBreak) => {},
+                _ => return Err(MarkdownError::InvalidBibliography("Bibliography has unexpected content")),
+            }
+        }
+        
+        if parser.next().is_some() {
+            return Err(MarkdownError::InvalidBibliography("Bibliography is not the last item in the post"));
+        }
+        
+        bib.sort_by(|a, b| a.0.cmp(&b.0));
+        
+        /* Check that all citations have an entry in the bibliography */
+        for (name, id) in &self.citations {
+            if let Some(entry) = bib.get(*id - 1) {
+                if entry.0 != *id {
+                    return Err(MarkdownError::NoCitation(name.to_string()));
+                }
+            } else {
+                return Err(MarkdownError::NoCitation(name.to_string()));
+            }
+        }
+        
+        /* Generate html */
+        minimizer.append_template(Bibliography {
+            references: bib,
+        });
+        
+        Ok(())
     }
     
     pub fn urls(&self) -> &HashSet<String> {

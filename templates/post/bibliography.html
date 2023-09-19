@@ -1,0 +1,11 @@
+<div class="sep"></div>
+<h2 id="references"><a href="#references">References</a></h2>
+<table id="citations">
+    {% for (id, content) in references %}
+        <tr id="reference-{{ id }}">
+            <td class="cite-number">[{{ id }}]</td>
+            <td class="cite-source">{{ content|escape("none") }}</td>
+        </tr>
+    {% endfor %}
+</table>
+<br/>

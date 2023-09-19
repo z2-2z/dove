@@ -176,3 +176,27 @@ ul, ol {
     padding: 0;
     padding-left: 1.75em;
 }
+
+@keyframes highlight {
+    0% {  }
+    50% { background-color: var(--highlight); }
+    100% {  }
+}
+  
+:target {
+    animation: highlight 1s ease;  
+}
+
+#citations {
+    border-collapse: collapse;
+    table-layout: auto;
+    width: 100%;
+}
+
+#citations tr {
+    width: 100%;
+}
+
+.cite-source {
+    width: 100%;
+}
