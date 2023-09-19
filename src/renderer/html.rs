@@ -61,6 +61,7 @@ pub struct HtmlRenderer {
     urls: HashSet<String>,
     citations: HashMap<String, usize>,
     citations_cursor: usize,
+    languages: HashSet<String>,
 }
 
 impl HtmlRenderer {
@@ -77,6 +78,7 @@ impl HtmlRenderer {
             urls: HashSet::new(),
             citations: HashMap::new(),
             citations_cursor: 1,
+            languages: HashSet::new(),
         }
     }
     
@@ -176,6 +178,11 @@ impl HtmlRenderer {
                         md::CodeBlockKind::Indented => "plaintext".to_string(),
                         md::CodeBlockKind::Fenced(language) => language.as_ref().to_ascii_lowercase(),
                     };
+                    
+                    if !self.languages.contains(&language) {
+                        self.languages.insert(language.clone());
+                    }
+                    
                     let data = self.collect(parser)?;
                     minimizer.append_template(Codeblock {
                         language,
@@ -462,5 +469,9 @@ impl HtmlRenderer {
     
     pub fn urls(&self) -> &HashSet<String> {
         &self.urls
+    }
+    
+    pub fn languages(&self) -> &HashSet<String> {
+        &self.languages
     }
 }

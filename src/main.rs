@@ -106,6 +106,7 @@ fn main() {
                 continue;
             }
             
+            /* Copy static file mentions */
             assert!(path.pop());
             let src_base = path;
             let mut dst_base = renderer.output_file().to_path_buf();
@@ -119,6 +120,18 @@ fn main() {
                         let dst = dst_base.join(url);
                         std::fs::copy(src, dst).unwrap();
                     }
+                }
+            }
+            
+            /* Check that code languages are correct */
+            for language in renderer.languages() {
+                let path = format!("{}/js/hljs/{}.min.js", args.static_folder, language);
+                let path = Path::new(&path);
+                
+                if !path.exists() {
+                    eprintln!("[{}] Codeblock uses unknown language: {}", path.display(), language);
+                    erroneous_posts = true;
+                    continue;
                 }
             }
         }
