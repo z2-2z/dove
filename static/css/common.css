@@ -7,13 +7,13 @@
 }
 
 @font-face {
-    font-family: "TestFont";
+    font-family: "MainFont";
     src: url("/fonts/PTSans-Regular.ttf") format("truetype"); 
     font-weight: normal;
     font-style: normal;
 }
 @font-face {
-    font-family: "TestFontBold";
+    font-family: "MainFontBold";
     src: url("/fonts/PTSans-Bold.ttf") format("truetype");
     font-weight: bold;
     font-style: normal;
@@ -35,5 +35,5 @@ html,body {
 }
 
 * {
-    font-family: TestFont;
+    font-family: MainFont;
 }

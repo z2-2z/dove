@@ -107,7 +107,7 @@ div.sep {
 }
 
 .table thead td {
-    font-family: TestFontBold;
+    font-family: MainFontBold;
     border-bottom: 1px solid var(--foreground);
     font-size: 15pt;
     text-align: center;
