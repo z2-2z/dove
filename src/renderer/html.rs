@@ -94,7 +94,6 @@ impl HtmlRenderer {
         options.insert(md::Options::ENABLE_TABLES);
         options.insert(md::Options::ENABLE_STRIKETHROUGH);
         let mut uses_code = false;
-        let mut languages: HashSet<String> = HashSet::new();
         
         /* Check for code blocks */
         for elem in md::Parser::new_ext(content, options) {
@@ -108,7 +107,7 @@ impl HtmlRenderer {
                             "" => "plaintext".to_string(),
                             language => language.to_ascii_lowercase(),
                         };
-                        languages.insert(language);
+                        self.languages.insert(language);
                     },
                 },
                 _ => {},
@@ -119,7 +118,7 @@ impl HtmlRenderer {
         minimizer.append_template(PostHeader {
             title: post.metadata().title(),
             uses_code,
-            languages,
+            languages: &self.languages,
         });
         minimizer.append_template(Headline {
             headline: post.metadata().title(),
@@ -179,11 +178,6 @@ impl HtmlRenderer {
                         md::CodeBlockKind::Indented => "plaintext".to_string(),
                         md::CodeBlockKind::Fenced(language) => language.as_ref().to_ascii_lowercase(),
                     };
-                    
-                    if !self.languages.contains(&language) {
-                        self.languages.insert(language.clone());
-                    }
-                    
                     let data = self.collect(parser)?;
                     minimizer.append_template(Codeblock {
                         language,
