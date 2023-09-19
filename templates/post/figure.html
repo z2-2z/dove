@@ -8,7 +8,7 @@
     </a>
     <p>
         <a href="#figure-{{ number }}">
-            <b>Figure {{ number }}{% if description.is_empty() %}</b> {% else %}:</b> {{ description|escape("none") }}{% endif %}
+            <span class="slightly-bold">Figure {{ number }}{% if description.is_empty() %}</span> {% else %}:</span> {{ description|escape("none") }}{% endif %}
         </a>
     </p>
 </div>

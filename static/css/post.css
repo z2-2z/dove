@@ -12,7 +12,7 @@ h1 {
 }
 
 span.quote, td.cite-number {
-    color: var(--quote);
+    color: var(--cite);
 }
 
 a {
@@ -230,6 +230,14 @@ ul, ol {
 
 #categories {
     padding: 0.5em 0 0.5em 0;
-    color: var(--quote);
+    color: var(--cite);
     font-size: 13pt;
 }
+
+b {
+    font-family: MainFontBold;
+}
+
+.slightly-bold {
+    font-weight: bold;
+  }
