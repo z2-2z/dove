@@ -188,13 +188,23 @@ ul, ol {
     50% { color: var(--background); border-color: var(--background); }
     100% {  }
 }
-  
+
+@keyframes highlight-images {
+    0% { }
+    50% { filter: invert(100%); }
+    100% { }
+}
+
 :target {
     animation: highlight-background 1s ease;  
 }
 
 :target * {
     animation: highlight-foreground 1s ease;  
+}
+
+:target img {
+    animation:highlight-images 1s ease
 }
 
 #citations {
