@@ -10,8 +10,7 @@ a.link {
 h1 {
     border-bottom: 1px solid var(--foreground);
     margin: 0;
-    padding: 0.5em 0 0.5em 0;
-    font-size: 27pt;
+    font-size: 29pt;
     font-weight: normal;
 }
 
@@ -62,21 +61,19 @@ p {
 
 h2 {
     margin: 0;
-    padding: 0.25em 0 0.25em 0;
     font-size: 22pt;
     font-weight: normal;
 }
 
 #references {
     margin: 0;
-    padding: 0 0 0.25em 0;
     font-size: 22pt;
     font-weight: normal;
 }
 
-div.sep {
-    border-bottom: 1px solid var(--foreground);
-    margin: 1em 0 0.5em 0;
+hr {
+    border-color: var(--foreground);
+    margin: 0;
 }
 
 .cite-source {
@@ -211,15 +208,15 @@ ul, ol {
 }
 
 :target {
-    animation: highlight-background 1s ease;  
+    animation: highlight-background 2s ease;  
 }
 
 :target * {
-    animation: highlight-foreground 1s ease;  
+    animation: highlight-foreground 2s ease;  
 }
 
 :target img {
-    animation:highlight-images 1s ease
+    animation:highlight-images 2s ease
 }
 
 #citations {
@@ -237,7 +234,6 @@ ul, ol {
 }
 
 #categories {
-    padding: 0.5em 0 0.5em 0;
     color: var(--cite);
     font-size: 13pt;
 }
@@ -248,4 +244,24 @@ b {
 
 .slightly-bold {
     font-weight: bold;
-  }
+}
+
+@keyframes make-link {
+    0% { }
+    100% { color: var(--link); }
+}
+
+@keyframes make-foreground {
+    0% { }
+    100% { color: var(--foreground); }
+}
+
+.quote:hover a {
+  animation: make-link 0.5s ease;
+  animation-fill-mode: forwards;
+}
+
+.quote:hover {
+  animation: make-foreground 0.5s ease;
+  animation-fill-mode: forwards;
+}
