@@ -125,6 +125,9 @@ impl HtmlRenderer {
         });
         minimizer.append_template(Categories {
             categories: post.metadata().categories(),
+            day: post.metadata().date().day(),
+            month: post.metadata().date().month_name(),
+            year: post.metadata().date().year(),
         });
         
         #[cfg(not(feature = "test-content"))]

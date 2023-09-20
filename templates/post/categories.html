@@ -1,6 +1,11 @@
-<div id="categories">
-    {% for i in categories %}
-        <span class="category">#{{ i }}</span>
-        &nbsp;
-    {% endfor %}
+<div id="metadata">
+    <div id="categories">
+        {% for i in categories %}
+            <span class="category">#{{ i }}</span>
+            &nbsp;
+        {% endfor %}
+    </div>
+    <div id="date">
+        <span>{{ "{:02}"|format(day) }} {{ month }}. {{ "{:04}"|format(year) }}</span>
+    </div>
 </div>

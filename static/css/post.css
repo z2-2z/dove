@@ -238,10 +238,12 @@ ul, ol {
     width: 100%;
 }
 
-#categories {
+#metadata {
     color: var(--cite);
     font-size: 15pt;
     padding: 8px 0 8px 0;
+    display: flex;
+    justify-content: space-between;
 }
 
 b {

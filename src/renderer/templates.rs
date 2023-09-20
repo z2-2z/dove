@@ -160,4 +160,7 @@ pub struct Citation {
 #[template(path = "post/categories.html")]
 pub struct Categories<'a> {
     pub categories: &'a [String],
+    pub day: u8,
+    pub month: &'a str,
+    pub year: u16,
 }
