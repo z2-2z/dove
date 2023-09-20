@@ -12,7 +12,7 @@ h1 {
     margin: 0;
     font-size: 29pt;
     font-weight: normal;
-    padding: 24px 0 16px 0;
+    padding: 24px 0 12px 0;
 }
 
 span.quote, td.cite-number {
@@ -77,7 +77,7 @@ h2 {
 
 hr {
     border-color: var(--foreground);
-    margin: 16px 0 8px 0;
+    margin: 24px 0 24px 0;
 }
 
 .cite-source {
@@ -241,7 +241,7 @@ ul, ol {
 #metadata {
     color: var(--cite);
     font-size: 15pt;
-    padding: 8px 0 8px 0;
+    padding: 12px 0 24px 0;
     display: flex;
     justify-content: space-between;
 }
@@ -272,4 +272,8 @@ b {
 .quote:hover {
   animation: make-foreground 0.5s ease;
   animation-fill-mode: forwards;
+}
+
+.category {
+    margin-right: 12px;
 }
