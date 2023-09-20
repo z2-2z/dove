@@ -12,6 +12,7 @@ h1 {
     margin: 0;
     font-size: 29pt;
     font-weight: normal;
+    padding: 24px 0 16px 0;
 }
 
 span.quote, td.cite-number {
@@ -35,7 +36,7 @@ a {
 
 #item {
     grid-column: 2;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
 @media (min-width: 1000px) {
@@ -63,17 +64,20 @@ h2 {
     margin: 0;
     font-size: 22pt;
     font-weight: normal;
+    padding: 16px 0 4px 0;
 }
 
 #references {
     margin: 0;
+    padding: 0;
     font-size: 22pt;
     font-weight: normal;
+    margin-bottom: 8px;
 }
 
 hr {
     border-color: var(--foreground);
-    margin: 0;
+    margin: 16px 0 8px 0;
 }
 
 .cite-source {
@@ -223,6 +227,7 @@ ul, ol {
     border-collapse: collapse;
     table-layout: auto;
     width: 100%;
+    margin-bottom: 16px;
 }
 
 #citations tr {
@@ -235,7 +240,8 @@ ul, ol {
 
 #categories {
     color: var(--cite);
-    font-size: 13pt;
+    font-size: 15pt;
+    padding: 8px 0 8px 0;
 }
 
 b {
