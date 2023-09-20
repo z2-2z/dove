@@ -64,7 +64,7 @@ h2 {
     margin: 0;
     font-size: 22pt;
     font-weight: normal;
-    padding: 16px 0 4px 0;
+    padding: 24px 0 8px 0;
 }
 
 #references {
@@ -227,7 +227,7 @@ ul, ol {
     border-collapse: collapse;
     table-layout: auto;
     width: 100%;
-    margin-bottom: 16px;
+    margin-bottom: 24px;
 }
 
 #citations tr {
