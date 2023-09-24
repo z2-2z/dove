@@ -1,3 +1,4 @@
+use crate::posts::post::Post;
 use std::collections::HashSet;
 use askama::Template;
 
@@ -163,4 +164,10 @@ pub struct Categories<'a> {
     pub day: u8,
     pub month: &'a str,
     pub year: u16,
+}
+
+#[derive(Template)]
+#[template(path = "index.html")]
+pub struct Index<'a> {
+    pub posts: &'a [Post],
 }

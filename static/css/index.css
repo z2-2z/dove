@@ -1,0 +1,81 @@
+* {
+    font-size: 15pt;
+}
+
+@font-face {
+    font-family: "TitleFont";
+    src: url("/fonts/PTSerif-Bold.ttf") format("truetype"); 
+    font-weight: normal;
+    font-style: normal;
+}
+
+#container {
+    width: 100%;
+    min-height: 100%;
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 2em 1fr 2em;
+}
+
+#item {
+    grid-column: 2;
+    overflow-x: hidden;
+}
+
+@media (min-width: 1000px) {
+    #container {
+        grid-template-columns: 3fr 6fr 3fr;
+    }
+}
+
+#profile img {
+    width: 250px;
+    border-radius: 100000px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+#profile {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+}
+
+h1 {
+    font-family: TitleFont;
+    font-weight: normal;
+    font-size: 40pt;
+    text-align: center;
+    margin: 0;
+    margin-bottom: 32px;
+}
+
+#posts {
+    margin-bottom: 32px;
+}
+
+.post-entry {
+    border-left: 2px solid var(--foreground);
+    padding-left: 16px;
+    margin-bottom: 16px;
+}
+
+.post-title {
+    font-size: 18pt;
+}
+
+.post-metadata span {
+    color: var(--cite);
+    margin-right: 8px;
+}
+
+.post-metadata .post-date {
+    margin-right: 16px;
+}
+
+a {
+    color: inherit;
+    text-decoration: inherit;
+    font-family: inherit;
+    font-size: inherit;
+}

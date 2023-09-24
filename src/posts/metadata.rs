@@ -10,7 +10,7 @@ impl std::fmt::Display for ParsingError {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct PostDate {
     day: u8,
     month: u8,

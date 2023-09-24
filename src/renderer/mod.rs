@@ -1,2 +1,3 @@
-pub mod html;
+pub mod post;
 pub mod templates;
+pub mod index;

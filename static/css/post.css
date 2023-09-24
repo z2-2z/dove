@@ -1,3 +1,16 @@
+@font-face {
+    font-family: "MainFontBold";
+    src: url("/fonts/PTSans-Bold.ttf") format("truetype");
+    font-weight: bold;
+    font-style: normal;
+}
+@font-face {
+    font-family: "CodeFont";
+    src: url("/fonts/Hack-Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
 html {
     scroll-behavior: smooth;
 }

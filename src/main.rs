@@ -12,7 +12,8 @@ use posts::{
     iter::PostIterator,
     post::Post,
 };
-use renderer::html::HtmlRenderer;
+use renderer::post::PostRenderer;
+use renderer::index::render_index;
 use std::process::exit;
 use mimalloc::MiMalloc;
 
@@ -82,6 +83,7 @@ fn main() {
     let args = Args::parse();
     let mut posts = Vec::new();
     let mut erroneous_posts = false;
+    let mut updated_posts = false;
     
     //TODO: indicatif logger
     
@@ -97,7 +99,7 @@ fn main() {
             },
         };
         
-        let mut renderer = HtmlRenderer::new(&args.output, &post);
+        let mut renderer = PostRenderer::new(&args.output, &post);
         
         if args.force || needs_updating(&path, renderer.output_file()) {
             if let Err(err) = renderer.render(&content, &post) {
@@ -134,6 +136,8 @@ fn main() {
                     continue;
                 }
             }
+            
+            updated_posts = true;
         }
         
         posts.push(post);
@@ -151,7 +155,15 @@ fn main() {
         &args.output,
     );
     
-    //TODO: index page, category pages
+    
+    if args.force || updated_posts {
+        posts.sort_by(|a, b| b.metadata().date().cmp(a.metadata().date()));
+        
+        /* Index page */
+        render_index(&args.output, &posts);
+        
+        //TODO: category pages
+    }
     
     exit(0);
 }

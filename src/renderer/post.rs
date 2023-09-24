@@ -52,7 +52,7 @@ impl std::fmt::Display for MarkdownError {
     }
 }
 
-pub struct HtmlRenderer {
+pub struct PostRenderer {
     file: PathBuf,
     tables: usize,
     description: String,
@@ -64,7 +64,7 @@ pub struct HtmlRenderer {
     languages: HashSet<String>,
 }
 
-impl HtmlRenderer {
+impl PostRenderer {
     pub fn new(output_dir: &str, post: &Post) -> Self {
         let mut file = PathBuf::from(output_dir);
         file.push(post.url());
