@@ -79,3 +79,13 @@ a {
     font-family: inherit;
     font-size: inherit;
 }
+
+@keyframes make-link {
+    0% { }
+    100% { color: var(--link); }
+}
+
+.post-title a:hover {
+  animation: make-link 0.5s ease;
+  animation-fill-mode: forwards;
+}
