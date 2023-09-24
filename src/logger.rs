@@ -32,6 +32,15 @@ impl Logger {
             self.bar.finish();
         }
     }
+    
+    pub fn abort(&mut self) {
+        if self.running {
+            self.running = false;
+            self.bar.set_message("building failed");
+            self.bar.tick();
+            self.bar.finish();
+        }
+    }
 
     fn emit<L: Display, S: AsRef<str>>(&self, level: L, msg: S) {
         self.bar.println(format!("{} {}", level, msg.as_ref()));

@@ -90,7 +90,7 @@ fn main() {
     let mut posts = Vec::new();
     let mut erroneous_posts = false;
     let mut updated_posts = false;
-    let logger = Logger::new();
+    let mut logger = Logger::new();
     
     /* Generate posts */
     for mut path in PostIterator::read(&args.input) {
@@ -153,6 +153,7 @@ fn main() {
     }
     
     if erroneous_posts {
+        logger.abort();
         exit(1);
     }
     
