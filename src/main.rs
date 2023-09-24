@@ -54,12 +54,12 @@ fn needs_minification(path: &Path, ext: &str) -> bool {
     path.to_string_lossy().strip_suffix(ext).map(|x| x.ends_with(".min")) == Some(false)
 }
 
-fn copy_static_files(force: bool, src_dir: &Path, output: &str, logger: &Logger) {
-    for entry in std::fs::read_dir(src_dir).unwrap() {
+fn copy_static_files(force: bool, dir: &Path, input: &Path, output: &str, logger: &Logger) {
+    for entry in std::fs::read_dir(dir).unwrap() {
         let src_path = entry.unwrap().path();
         
         let mut dst_path = PathBuf::from(output);
-        let part: PathBuf = src_path.iter().skip(1).collect();
+        let part = src_path.strip_prefix(input).unwrap();
         dst_path.push(part);
         
         if src_path.is_dir() {
@@ -67,7 +67,7 @@ fn copy_static_files(force: bool, src_dir: &Path, output: &str, logger: &Logger)
                 logger.debug(format!("Creating directory {}", dst_path.display()));
                 std::fs::create_dir(&dst_path).unwrap();
             }
-            copy_static_files(force, &src_path, output, logger);
+            copy_static_files(force, &src_path, input, output, logger);
         } else if needs_minification(&src_path, ".css") {
             if force || needs_updating(&src_path, &dst_path) {
                 logger.debug(format!("Minifying {} -> {}", src_path.display(), dst_path.display()));
@@ -160,6 +160,7 @@ fn main() {
     /* Copy static content */
     copy_static_files(
         args.force,
+        Path::new(&args.static_folder),
         Path::new(&args.static_folder),
         &args.output,
         &logger,
