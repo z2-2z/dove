@@ -6,8 +6,6 @@ use indicatif::{
     ProgressStyle,
 };
 
-const ANIMATION: &[&str; 9] = &[".  ", ".. ", "...", " ..", "  .", " ..", "...", "..", ""];
-
 pub struct Logger {
     bar: ProgressBar,
     running: bool,
@@ -16,9 +14,8 @@ pub struct Logger {
 impl Logger {
     pub fn new() -> Self {
         let bar = ProgressBar::new_spinner();
-        bar.set_style(ProgressStyle::with_template("{prefix} {msg} {spinner}").unwrap().tick_strings(ANIMATION));
-        bar.set_prefix("🕊️");
-        bar.set_message("Generating blog");
+        bar.set_style(ProgressStyle::with_template("🕊️  {msg} 🕊️ ").unwrap());
+        bar.set_message("building the blog");
         bar.enable_steady_tick(Duration::from_millis(100));
 
         Self {
@@ -30,7 +27,9 @@ impl Logger {
     fn stop(&mut self) {
         if self.running {
             self.running = false;
-            self.bar.finish_and_clear();
+            self.bar.set_message("building complete");
+            self.bar.tick();
+            self.bar.finish();
         }
     }
 
@@ -57,5 +56,20 @@ impl Logger {
 impl Drop for Logger {
     fn drop(&mut self) {
         self.stop();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_style() {
+        let logger = Logger::new();
+        logger.info("info");
+        logger.debug("debug");
+        logger.error("error");
+
+        std::thread::sleep(std::time::Duration::from_secs(5));
     }
 }

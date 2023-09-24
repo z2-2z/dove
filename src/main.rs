@@ -127,7 +127,7 @@ fn main() {
                     
                     if src.exists() {
                         let dst = dst_base.join(url);
-                        logger.debug(format!("Copying {} -> {}", src.display(), dst.display()));
+                        logger.info(format!("  -> asset: {}", src.display()));
                         std::fs::copy(src, dst).unwrap();
                     }
                 }
@@ -173,6 +173,4 @@ fn main() {
         
         //TODO: category pages
     }
-    
-    exit(0);
 }
