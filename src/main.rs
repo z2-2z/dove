@@ -3,6 +3,7 @@
 mod posts;
 mod renderer;
 mod mini;
+mod logger;
 
 use std::path::{Path, PathBuf};
 use std::fs::File;
@@ -14,6 +15,7 @@ use posts::{
 };
 use renderer::post::PostRenderer;
 use renderer::index::render_index;
+use logger::Logger;
 use std::process::exit;
 use mimalloc::MiMalloc;
 
@@ -52,7 +54,7 @@ fn needs_minification(path: &Path, ext: &str) -> bool {
     path.to_string_lossy().strip_suffix(ext).map(|x| x.ends_with(".min")) == Some(false)
 }
 
-fn copy_static_files(force: bool, src_dir: &Path, output: &str) {
+fn copy_static_files(force: bool, src_dir: &Path, output: &str, logger: &Logger) {
     for entry in std::fs::read_dir(src_dir).unwrap() {
         let src_path = entry.unwrap().path();
         
@@ -62,18 +64,22 @@ fn copy_static_files(force: bool, src_dir: &Path, output: &str) {
         
         if src_path.is_dir() {
             if !dst_path.exists() {
+                logger.debug(format!("Creating directory {}", dst_path.display()));
                 std::fs::create_dir(&dst_path).unwrap();
             }
-            copy_static_files(force, &src_path, output);
+            copy_static_files(force, &src_path, output, logger);
         } else if needs_minification(&src_path, ".css") {
             if force || needs_updating(&src_path, &dst_path) {
+                logger.debug(format!("Minifying {} -> {}", src_path.display(), dst_path.display()));
                 mini::css::minimize_css(&src_path, &dst_path);
             }
         } else if needs_minification(&src_path, ".js") {
             if force || needs_updating(&src_path, &dst_path) {
+                logger.debug(format!("Minifying {} -> {}", src_path.display(), dst_path.display()));
                 mini::js::minimize_js(&src_path, &dst_path);
             }
         } else if force || needs_updating(&src_path, &dst_path) {
+            logger.debug(format!("Copying {} -> {}", src_path.display(), dst_path.display()));
             std::fs::copy(src_path, dst_path).unwrap();
         }
     }
@@ -84,8 +90,7 @@ fn main() {
     let mut posts = Vec::new();
     let mut erroneous_posts = false;
     let mut updated_posts = false;
-    
-    //TODO: indicatif logger
+    let logger = Logger::new();
     
     /* Generate posts */
     for mut path in PostIterator::read(&args.input) {
@@ -93,7 +98,7 @@ fn main() {
         let post = match Post::new(&content) {
             Ok(post) => post,
             Err(err) => {
-                eprintln!("[{}] {}", path.display(), err);
+                logger.error(format!("{}: {}", path.display(), err));
                 erroneous_posts = true;
                 continue;
             },
@@ -102,8 +107,10 @@ fn main() {
         let mut renderer = PostRenderer::new(&args.output, &post);
         
         if args.force || needs_updating(&path, renderer.output_file()) {
+            logger.info(format!("Rendering {}", path.display()));
+            
             if let Err(err) = renderer.render(&content, &post) {
-                eprintln!("[{}] {}", path.display(), err);
+                logger.error(format!("{}: {}", path.display(), err));
                 erroneous_posts = true;
                 continue;
             }
@@ -120,6 +127,7 @@ fn main() {
                     
                     if src.exists() {
                         let dst = dst_base.join(url);
+                        logger.debug(format!("Copying {} -> {}", src.display(), dst.display()));
                         std::fs::copy(src, dst).unwrap();
                     }
                 }
@@ -131,7 +139,7 @@ fn main() {
                 let path = Path::new(&path);
                 
                 if !path.exists() {
-                    eprintln!("[{}] Codeblock uses unknown language: {}", path.display(), language);
+                    logger.error(format!("{}: codeblock uses unknown language '{}'", path.display(), language));
                     erroneous_posts = true;
                     continue;
                 }
@@ -153,13 +161,14 @@ fn main() {
         args.force,
         Path::new(&args.static_folder),
         &args.output,
+        &logger,
     );
-    
     
     if args.force || updated_posts {
         posts.sort_by(|a, b| b.metadata().date().cmp(a.metadata().date()));
         
         /* Index page */
+        logger.debug("Rendering index");
         render_index(&args.output, &posts);
         
         //TODO: category pages

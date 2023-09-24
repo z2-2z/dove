@@ -18,6 +18,8 @@ minify-html-onepass = "0.11.1"
 css-minify = "0.3.1"
 minify-js = "0.5.6"
 mimalloc = { version = "0.1.39", default-features = false }
+indicatif = "0.17.7"
+colored = "2.0.4"
 
 [features]
 default = []
