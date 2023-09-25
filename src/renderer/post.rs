@@ -40,7 +40,7 @@ impl std::fmt::Display for MarkdownError {
         match self {
             MarkdownError::InvalidHeading => write!(f, "Invalid heading. Only heading level 2 allowed"),
             MarkdownError::Footnote => write!(f, "Footnotes are not supported"),
-            MarkdownError::InvalidHtml(tag) => write!(f, "Invalid html tag: {}", tag),
+            MarkdownError::InvalidHtml(tag) => write!(f, "Invalid html tag: '{}'", tag),
             MarkdownError::TaskList => write!(f, "Tasklists are not supported"),
             MarkdownError::NonUtf8 => write!(f, "Post content is not utf-8"),
             MarkdownError::NoRefId => write!(f, "Reference tag in bibliography has no id attribute"),
@@ -279,7 +279,7 @@ impl PostRenderer {
                 },
             },
             md::Event::Html(tag) => {
-                match tag.as_ref() {
+                match tag.as_ref().trim() {
                     "<table-title>" => {
                         let data = self.collect_html(parser, "</table-title>")?;
                         self.description = data.into_inner();

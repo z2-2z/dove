@@ -193,7 +193,7 @@ hr {
     background-color: var(--code);
     border-left: 1pt solid var(--foreground);
     border-right:1pt solid var(--foreground);
-    padding: 0 1em 0 1em;
+    padding: 12px 1em 12px 1em;
 }
 
 .blockquote p {
