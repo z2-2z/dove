@@ -163,7 +163,12 @@ document.addEventListener("DOMContentLoaded", () => {
     
     button.addEventListener("click", () => {
         const query = bar.value;
-        parseQuery(query);
         saveQuery(query);
+    });
+    
+    window.addEventListener("hashchange", () => {
+        const query = getQuery();
+        bar.value = query;
+        parseQuery(query);
     });
 });
