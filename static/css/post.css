@@ -10,6 +10,12 @@
     font-weight: normal;
     font-style: normal;
 }
+@font-face {
+    font-family: "TitleFont";
+    src: url("/fonts/PTSerif-Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
 
 html {
     scroll-behavior: smooth;
@@ -21,10 +27,11 @@ a.link {
 }
 
 h1 {
+    font-family: TitleFont;
     border-bottom: 1px solid var(--foreground);
     margin: 0;
     font-size: 29pt;
-    font-weight: normal;
+    font-weight: 500;
     padding: 24px 0 12px 0;
 }
 
