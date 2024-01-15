@@ -87,14 +87,6 @@ h2 {
     padding: 24px 0 8px 0;
 }
 
-#references {
-    margin: 0;
-    padding: 0;
-    font-size: 22pt;
-    font-weight: normal;
-    margin-bottom: 8px;
-}
-
 hr {
     border-color: var(--foreground);
     margin: 24px 0 24px 0;
@@ -296,4 +288,17 @@ b {
 
 .category {
     margin-right: 12px;
+}
+
+#footer-meta {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+}
+
+#footer-blog {
+    color: var(--color);
+    font-size: 15pt;
+    font-family: TitleFont;
 }
