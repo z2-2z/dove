@@ -57,6 +57,7 @@ a {
 #item {
     grid-column: 2;
     overflow: hidden;
+    font-size: 15pt;
 }
 
 @media (min-width: 1000px) {
@@ -84,7 +85,7 @@ h2 {
     margin: 0;
     font-size: 22pt;
     font-weight: normal;
-    padding: 24px 0 8px 0;
+    padding: 24pt 0 8pt 0;
 }
 
 hr {
