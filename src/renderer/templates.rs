@@ -8,6 +8,7 @@ pub struct PostHeader<'a> {
     pub title: &'a str,
     pub uses_code: bool,
     pub languages: &'a HashSet<String>,
+    pub keywords: String,
 }
 
 #[derive(Template)]
