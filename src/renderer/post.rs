@@ -120,6 +120,7 @@ impl PostRenderer {
             uses_code,
             languages: &self.languages,
             keywords: post.metadata().categories().join(", "),
+            url: post.url(),
         });
         minimizer.append_template(Headline {
             headline: post.metadata().title(),
