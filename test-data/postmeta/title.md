@@ -1,5 +1,5 @@
 date: 01-01-3054
-categories: bli, bla, blubb
+categories: bli, bla, blubb, very-long-cat-name
 
 # Title With <span> Spaces: Is 狗水 really delicious?
 
