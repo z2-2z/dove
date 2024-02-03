@@ -11,12 +11,16 @@ pub struct HtmlMinimizer {
 impl HtmlMinimizer {
     pub fn new() -> Self {
         Self {
-            html: String::with_capacity(4096),
+            html: String::with_capacity(4 * 4096),
         }
     }
     
     pub fn append_template<T: Template>(&mut self, template: T) {
         template.render_into(&mut self.html).unwrap();
+    }
+    
+    pub fn append_string<S: AsRef<str>>(&mut self, string: S) {
+        self.html.push_str(string.as_ref());
     }
     
     pub fn minimize<P: AsRef<Path>>(mut self, path: P) {

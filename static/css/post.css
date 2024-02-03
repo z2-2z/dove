@@ -307,3 +307,9 @@ b {
 #tracker {
     display: none;
 }
+
+br.blank-line {
+    display: block;
+    content: "";
+    margin-top: 1rem;
+}

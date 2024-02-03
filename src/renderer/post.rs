@@ -290,9 +290,9 @@ impl PostRenderer {
                         let data = self.collect_html(parser, "</figure-title>")?;
                         self.description = data.into_inner();
                     },
-                    "<br>" | "<br/>" => {
+                    /*"<br>" | "<br/>" => {
                         minimizer.append_template(Linebreak {});
-                    },
+                    },*/
                     "<cite>" => {
                         let data = self.collect_html(parser, "</cite>")?.into_inner();
                         let mut ids = Vec::new();
@@ -316,6 +316,9 @@ impl PostRenderer {
                             ids,
                         });
                     },
+                    "<blank-line>" | "<blank-line/>" => {
+                        minimizer.append_template(BlankLine {});
+                    },
                     tag => return Err(MarkdownError::InvalidHtml(tag.to_string())),
                 }
             },
@@ -330,7 +333,9 @@ impl PostRenderer {
                 });
             },
             md::Event::FootnoteReference(_) => return Err(MarkdownError::Footnote),
-            md::Event::SoftBreak => {},
+            md::Event::SoftBreak => {
+                minimizer.append_string(" ");
+            },
             md::Event::HardBreak => {
                 minimizer.append_template(Linebreak {});
             },

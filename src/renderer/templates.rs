@@ -148,6 +148,10 @@ pub struct Figure<'a> {
 pub struct Linebreak;
 
 #[derive(Template)]
+#[template(path = "post/blank_line.html")]
+pub struct BlankLine;
+
+#[derive(Template)]
 #[template(path = "post/bibliography.html")]
 pub struct Bibliography {
     pub references: Vec<(usize, String)>,
