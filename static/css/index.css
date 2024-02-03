@@ -73,6 +73,18 @@ h1 {
     margin-right: 16px;
 }
 
+.post-date::after {
+    content: "\A";
+    white-space: pre;
+}
+  
+@media (min-width: 1000px) {
+    .post-date::after {
+        content: "";
+        white-space: normal;
+    }
+}
+
 a {
     color: inherit;
     text-decoration: inherit;

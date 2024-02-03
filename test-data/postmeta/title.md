@@ -50,11 +50,11 @@ _emphasis_ and __bold__ and ~~strikethrough~~ and [a link](url).
 <figure-title>Image description using _markdown_ ~~or else~~</figure-title>
 ![](./test.png)
 
-text with<br>
+text with  
 hardbreak or     
 other hardbreak
 
-download file: [file.txt](./file.txt)<br>
+download file: [file.txt](./file.txt)  
 not a file: [?](http://duckduckgo.com)
 
 I am citing <cite>id1, id2</cite>.
