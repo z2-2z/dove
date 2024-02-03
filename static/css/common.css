@@ -1,9 +1,16 @@
 :root {
+    /* Colors */
     --background: #111111;
     --code: #202020;
     --link: #9AE19D;
     --cite: #7D7E75;
     --foreground: #F5F5F5;
+    
+    /* Font sizes */
+    --font-size-0: 32pt;
+    --font-size-1: 24pt;
+    --font-size-2: 15pt;
+    --font-size-3: 11pt;
 }
 
 @font-face {

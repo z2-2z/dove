@@ -30,9 +30,9 @@ h1 {
     font-family: TitleFont;
     border-bottom: 1px solid var(--foreground);
     margin: 0;
-    font-size: 32pt;
+    font-size: var(--font-size-0);
     font-weight: 500;
-    padding: 24px 0 12px 0;
+    padding: 2rem 0 1rem 0;
 }
 
 span.quote, td.cite-number {
@@ -57,7 +57,7 @@ a {
 #item {
     grid-column: 2;
     overflow: hidden;
-    font-size: 15pt;
+    font-size: var(--font-size-2);
 }
 
 @media (min-width: 1000px) {
@@ -68,13 +68,13 @@ a {
 
 @media (min-width: 2000px) {
     #container {
-        grid-template-columns: 3fr 3fr 3fr;
+        grid-template-columns: 4fr 3fr 4fr;
     }
 }
 
 p, li {
-    font-size: 15pt;
-    line-height: 1.2;
+    font-size: var(--font-size-2);
+    line-height: 1.33333;
 }
 
 p {
@@ -84,14 +84,14 @@ p {
 
 h2 {
     margin: 0;
-    font-size: 24pt;
+    font-size: var(--font-size-1);
     font-weight: normal;
-    padding: 24pt 0 8pt 0;
+    padding: 2rem 0 1rem 0;
 }
 
 hr {
     border-color: var(--foreground);
-    margin: 24px 0 24px 0;
+    margin: 2rem 0 2rem 0;
 }
 
 .cite-source {
@@ -127,7 +127,7 @@ hr {
 }
 
 .table tbody td {
-    font-size: 15pt;
+    font-size: var(--font-size-2);
     padding: 0.2em 1em 0.2em 1em;
     text-align: center;
 }
@@ -135,7 +135,7 @@ hr {
 .table thead td {
     font-family: MainFontBold;
     border-bottom: 1px solid var(--foreground);
-    font-size: 15pt;
+    font-size: var(--font-size-2);
     text-align: center;
     font-weight: bold;
     padding: 0.2em 1em 0.2em 1em;
@@ -174,7 +174,7 @@ hr {
 
 .code-block code {
     font-family: CodeFont;
-    font-size: 11pt;
+    font-size: var(--font-size-3);
     border-radius: 4px;
     max-height: 64em;
 }
@@ -186,7 +186,7 @@ hr {
 
 .code-inline {
     font-family: CodeFont;
-    font-size: 11pt;
+    font-size: var(--font-size-3);
     border-radius: 4px;
 }
 
@@ -194,7 +194,7 @@ hr {
     background-color: var(--code);
     border-left: 1pt solid var(--foreground);
     border-right:1pt solid var(--foreground);
-    padding: 12px 1em 12px 1em;
+    padding: 0.75rem 1rem 0.75rem 1rem;
 }
 
 .blockquote p {
@@ -241,7 +241,6 @@ ul, ol {
     border-collapse: collapse;
     table-layout: auto;
     width: 100%;
-    margin-bottom: 24px;
 }
 
 #citations tr {
@@ -254,8 +253,8 @@ ul, ol {
 
 #metadata {
     color: var(--cite);
-    font-size: 15pt;
-    padding: 12px 0 24px 0;
+    font-size: var(--font-size-2);
+    padding: 1rem 0 2rem 0;
     display: flex;
     justify-content: space-between;
 }
@@ -289,7 +288,7 @@ b {
 }
 
 .category {
-    margin-right: 12px;
+    margin-right: 0.75rem;
 }
 
 #footer-meta {
@@ -301,7 +300,7 @@ b {
 
 #footer-blog {
     color: var(--color);
-    font-size: 15pt;
+    font-size: var(--font-size-2);
     font-family: TitleFont;
 }
 
