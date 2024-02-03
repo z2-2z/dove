@@ -30,7 +30,7 @@ h1 {
     font-family: TitleFont;
     border-bottom: 1px solid var(--foreground);
     margin: 0;
-    font-size: 29pt;
+    font-size: 32pt;
     font-weight: 500;
     padding: 24px 0 12px 0;
 }
@@ -84,7 +84,7 @@ p {
 
 h2 {
     margin: 0;
-    font-size: 22pt;
+    font-size: 24pt;
     font-weight: normal;
     padding: 24pt 0 8pt 0;
 }
