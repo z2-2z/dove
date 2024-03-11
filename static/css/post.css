@@ -89,6 +89,11 @@ h2 {
     font-size: var(--font-size-1);
     font-weight: normal;
     padding: 2rem 0 1rem 0;
+    font-family: TitleFont;
+}
+
+h2 a span {
+    font-family: inherit;
 }
 
 hr {
