@@ -9,13 +9,13 @@
     /* Font sizes */
     --font-size-0: 34pt;
     --font-size-1: 26pt;
-    --font-size-2: 15pt;
+    --font-size-2: 14pt;
     --font-size-3: 11pt;
 }
 
 @font-face {
     font-family: "MainFont";
-    src: url("/fonts/PTSans-Regular.ttf") format("truetype"); 
+    src: url("/fonts/main.ttf") format("truetype"); 
     font-weight: normal;
     font-style: normal;
 }
