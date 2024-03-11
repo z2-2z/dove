@@ -44,10 +44,12 @@
 h1 {
     font-family: TitleFontBold;
     font-weight: normal;
-    font-size: 40pt;
+    font-size: 50pt;
     text-align: center;
     margin: 0;
+    margin-top: 8px;
     margin-bottom: 32px;
+    letter-spacing: 1px;
 }
 
 #posts {
@@ -62,6 +64,7 @@ h1 {
 
 .post-title {
     font-size: 18pt;
+    margin-bottom: 4px;
 }
 
 .post-metadata span {
