@@ -339,3 +339,7 @@ br.blank-line {
     content: "";
     margin-top: 1rem;
 }
+
+p code {
+    text-justify: none;
+}
