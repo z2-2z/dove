@@ -32,14 +32,8 @@ h1 {
     margin: 0;
     font-size: var(--font-size-0);
     font-weight: 500;
-    padding: 2rem 0 1rem 0;
+    padding: 2.5rem 0 1rem 0;
     text-align: center;
-}
-
-@media (min-width: 800px) {
-    h1 {
-        text-align: justify;
-    }
 }
 
 span.quote, td.cite-number {
@@ -84,10 +78,21 @@ p, li {
     line-height: 1.5;
 }
 
+@media (min-width: 1200px) {
+    h1 {
+        text-align: justify;
+    }
+    
+    p, li {
+        text-align: justify;
+        text-justify: inter-word;
+        hyphens: auto;
+    }
+}
+
 p {
     margin: 0;
     padding: 0;
-    text-align: justify;
 }
 
 h2 {
