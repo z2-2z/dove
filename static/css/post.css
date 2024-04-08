@@ -70,7 +70,7 @@ a {
 
 @media (min-width: 1000px) {
     #container {
-        grid-template-columns: 3fr 5fr 3fr;
+        grid-template-columns: 3fr 8fr 3fr;
     }
 }
 
@@ -82,7 +82,7 @@ a {
 
 @media (min-width: 2000px) {
     #container {
-        grid-template-columns: 4fr 3fr 4fr;
+        grid-template-columns: 4fr 2fr 4fr;
     }
 }
 
@@ -91,8 +91,8 @@ p, li {
     line-height: 1.666;
 }
 
-@media (min-width: 1200px) {
-    h1, h2 {
+@media (min-width: 1000px) {
+    h1 {
         text-align: justify;
     }
 }
