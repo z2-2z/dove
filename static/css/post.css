@@ -68,21 +68,21 @@ a {
     font-size: var(--font-size-2);
 }
 
+@media (min-width: 800px) {
+    #container {
+        grid-template-columns: 3.33em 1fr 3.33em;
+    }
+}
+
 @media (min-width: 1000px) {
     #container {
-        grid-template-columns: 3fr 8fr 3fr;
+        grid-template-columns: 1fr 600px 1fr;
     }
 }
 
 @media (min-width: 1200px) {
     #container {
-        grid-template-columns: 3fr 4fr 3fr;
-    }
-}
-
-@media (min-width: 2000px) {
-    #container {
-        grid-template-columns: 4fr 2fr 4fr;
+        grid-template-columns: 1fr 800px 1fr;
     }
 }
 
@@ -93,7 +93,7 @@ p, li {
 
 @media (min-width: 1000px) {
     h1 {
-        text-align: justify;
+        text-align: left;
     }
 }
 
