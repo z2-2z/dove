@@ -31,7 +31,7 @@ style="fill:#FFFFFF;">
                     {% for post in posts %}
                         <div class="post-entry" data-title="{{ post.metadata().title().to_ascii_lowercase() }}" data-categories="{% for cat in post.metadata().categories()  %}|{{ cat.to_ascii_lowercase() }}|{% endfor %}">
                             <div class="post-title">
-                                <a href="/{{ post.url() }}">{{ post.metadata().title() }}</a>
+                                <a href="{{ post.url() }}">{{ post.metadata().title() }}</a>
                             </div>
                             <div class="post-metadata">
                                 <span class="post-date">{{ "{:02} {}. {:04}"|format(post.metadata().date().day(), post.metadata().date().month_name(), post.metadata().date().year()) }}</span>

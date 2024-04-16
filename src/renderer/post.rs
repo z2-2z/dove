@@ -67,7 +67,7 @@ pub struct PostRenderer {
 impl PostRenderer {
     pub fn new(output_dir: &str, post: &Post) -> Self {
         let mut file = PathBuf::from(output_dir);
-        file.push(post.url());
+        file.push(post.filename());
         
         Self {
             file,
@@ -120,7 +120,7 @@ impl PostRenderer {
             uses_code,
             languages: &self.languages,
             keywords: post.metadata().categories().join(", "),
-            url: post.url(),
+            url: post.filename(),
         });
         minimizer.append_template(Headline {
             headline: post.metadata().title(),

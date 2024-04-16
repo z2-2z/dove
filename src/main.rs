@@ -106,7 +106,7 @@ fn main() {
         
         let mut renderer = PostRenderer::new(&args.output, &post);
         
-        if args.force || needs_updating(&path, renderer.output_file()) {
+        if !post.headless() && (args.force || needs_updating(&path, renderer.output_file())) {
             logger.info(format!("Rendering {}", path.display()));
             
             if let Err(err) = renderer.render(&content, &post) {
@@ -172,7 +172,5 @@ fn main() {
         /* Index page */
         logger.debug("Rendering index");
         render_index(&args.output, &posts);
-        
-        //TODO: category pages
     }
 }

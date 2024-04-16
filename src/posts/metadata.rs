@@ -150,6 +150,7 @@ pub struct PostMetadata {
     title: String,
     date: PostDate,
     categories: Vec<String>,
+    mirror: Option<String>,
     start_content: usize,
 }
 
@@ -169,12 +170,17 @@ impl PostMetadata {
     pub fn start_content(&self) -> usize {
         self.start_content
     }
+    
+    pub fn mirror(&self) -> Option<&String> {
+        self.mirror.as_ref()
+    }
 }
 
 pub struct PostMetadataParser<'a> {
     cursor: usize,
     data: &'a [u8],
     date: Option<PostDate>,
+    mirror: Option<String>,
     categories: Vec<String>,
 }
 
@@ -184,6 +190,7 @@ impl<'a> PostMetadataParser<'a> {
             cursor: 0,
             data,
             date: None,
+            mirror: None,
             categories: Vec::new(),
         };
         
@@ -210,12 +217,14 @@ impl<'a> PostMetadataParser<'a> {
         parser.check_content()?;
         let date = parser.date()?;
         let categories = parser.categories;
+        let mirror = parser.mirror;
         let start_content = parser.cursor;
         
         Ok(PostMetadata {
             title,
             date,
             categories,
+            mirror,
             start_content,
         })
     }
@@ -328,9 +337,17 @@ impl<'a> PostMetadataParser<'a> {
         match &self.data[key_start..colon] {
             b"date" => self.date = Some(self.parse_date(end)?),
             b"categories" => self.categories = self.parse_list(end)?,
+            b"mirror" => self.parse_mirror(end)?,
             _ => return Err(self.parsing_error("Invalid metadata key")),
         }
         
+        Ok(())
+    }
+    
+    fn parse_mirror(&mut self, end: usize) -> Result<(), ParsingError> {
+        let url = &self.data[self.cursor..end];
+        let url = std::str::from_utf8(url).map_err(|_| self.parsing_error("Invalid mirror URL"))?;
+        self.mirror = Some(url.to_string());
         Ok(())
     }
     
@@ -391,7 +408,9 @@ impl<'a> PostMetadataParser<'a> {
     }
     
     fn check_content(&self) -> Result<(), ParsingError> {
-        if self.cursor >= self.data.len() {
+        if self.mirror.is_some() {
+            Ok(())
+        } else if self.cursor >= self.data.len() {
             Err(self.parsing_error("No content in post"))
         } else {
             Ok(())

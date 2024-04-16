@@ -21,22 +21,29 @@ fn encode_filename(id: &str) -> String {
 pub struct Post {
     metadata: PostMetadata,
     url: String,
+    filename: String,
 }
 
 impl Post {
     pub fn new(content: &[u8]) -> Result<Self, ParsingError> {
         let metadata = PostMetadataParser::parse(content)?;
-        let url = format!(
+        let filename = format!(
             "{:04}/{}/{:02}/{}",
             metadata.date().year(),
             metadata.date().month_name(),
             metadata.date().day(),
             encode_filename(metadata.title())
         );
+        let url = if let Some(mirror) = metadata.mirror() {
+            mirror.clone()
+        } else {
+            format!("/{}", filename)
+        }; 
         
         Ok(Self {
             metadata,
             url,
+            filename,
         })
     }
     
@@ -44,7 +51,15 @@ impl Post {
         &self.metadata
     }
     
+    pub fn filename(&self) -> &str {
+        &self.filename
+    }
+    
     pub fn url(&self) -> &str {
         &self.url
+    }
+    
+    pub fn headless(&self) -> bool {
+        self.metadata.mirror().is_some()
     }
 }
