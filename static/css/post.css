@@ -39,7 +39,7 @@ h1 {
     margin: 0;
     font-size: var(--font-size-0);
     font-weight: 500;
-    padding: 2.555rem 0 1rem 0;
+    padding: 2rem 0 1rem 0;
     text-align: center;
 }
 
@@ -71,6 +71,10 @@ a {
 @media (min-width: 800px) {
     #container {
         grid-template-columns: 3.33em 1fr 3.33em;
+    }
+    
+    h1 {
+        padding: 2.555rem 0 1rem 0;
     }
 }
 
