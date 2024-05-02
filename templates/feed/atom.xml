@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>z2's blog</title>
+    <link href="https://z2-2z.github.io/atom.xml" rel="self"/>
+    <link href="https://z2-2z.github.io/"/>
+    <updated>{{ updated }}</updated>
+    {% for entry in entries %}
+        {{ entry|escape("none") }}
+    {% endfor %}
+</feed>

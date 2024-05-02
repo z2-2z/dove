@@ -1,0 +1,17 @@
+<entry>
+    <title>{{ title }}</title>
+    <link href="{{ url }}"/>
+    <published>{{ published }}</published>
+    <updated>{{ published }}</updated>
+    <summary></summary>
+    <author>
+			<name>z2</name>
+	</author>
+    <content type="xhtml">
+        <div xmlns="http://www.w3.org/1999/xhtml">
+            <a href="{{ url }}">{{ title }}</a><br/>
+            <br/>
+            {% for cat in categories %}<span>#{{ cat }} </span>{% endfor %}
+        </div>
+    </content>
+</entry>

@@ -10,7 +10,7 @@ impl std::fmt::Display for ParsingError {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Default, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct PostDate {
     year: u16,
     month: u8,
@@ -100,6 +100,10 @@ impl PostDate {
     
     pub fn year(&self) -> u16 {
         self.year
+    }
+    
+    pub fn month(&self) -> u8 {
+        self.month
     }
     
     pub fn month_name(&self) -> &'static str {

@@ -4,6 +4,7 @@ mod posts;
 mod renderer;
 mod mini;
 mod logger;
+mod feed;
 
 use std::path::{Path, PathBuf};
 use std::fs::File;
@@ -13,6 +14,7 @@ use posts::{
     iter::PostIterator,
     post::Post,
 };
+use feed::atom::generate_atom_feed;
 use renderer::post::PostRenderer;
 use renderer::index::render_index;
 use logger::Logger;
@@ -173,4 +175,10 @@ fn main() {
         logger.debug("Rendering index");
         render_index(&args.output, &posts);
     }
+    
+    generate_atom_feed(
+        format!("{}/atom.xml", args.output),
+        &posts
+    );
+    logger.debug("Generated atom feed");
 }
