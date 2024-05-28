@@ -1,10 +1,11 @@
-<div id="metadata">
-    <div id="categories">
-        {% for i in categories %}
-            <span class="category"><a href="/?#category%3A%22{{ i }}%22">#{{ i }}</a></span>
-        {% endfor %}
-    </div>
-    <div id="date">
-        <span>{{ "{:02}"|format(day) }} {{ month }}. {{ "{:04}"|format(year) }}</span>
+    <div id="metadata">
+        <div id="categories">
+            {% for i in categories %}
+                <span class="category"><a href="/?#category%3A%22{{ i }}%22">#{{ i }}</a></span>
+            {% endfor %}
+        </div>
+        <div id="date">
+            <span>{{ "{:02}"|format(day) }} {{ month }}. {{ "{:04}"|format(year) }}</span>
+        </div>
     </div>
 </div>
