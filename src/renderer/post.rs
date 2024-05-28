@@ -4,6 +4,7 @@ use std::collections::{HashSet, HashMap};
 use crate::posts::post::Post;
 use crate::renderer::templates::*;
 use crate::mini::html::HtmlMinimizer;
+use crate::img::is_image;
 
 fn make_id(id: &str) -> String {
     let mut prev_dash = false;
@@ -267,17 +268,22 @@ impl PostRenderer {
                     self.urls.insert(url.into_string());
                 },
                 md::Tag::Image(_, url, title) => {
+                    let url = url.as_ref();
                     assert!(title.is_empty());
                     self.collect(parser)?;
+                    let mut path = PathBuf::from(url);
+                    if is_image(&path) {
+                        path.set_extension("webp");
+                    }
                     minimizer.append_template(Figure {
                         number: self.figures,
-                        url: url.as_ref(),
+                        url: path.to_str().unwrap(),
                         description: &self.description,
                         inside_p: self.p_level > 0,
                     });
                     self.figures += 1;
                     self.description.clear();
-                    self.urls.insert(url.into_string());
+                    self.urls.insert(url.to_string());
                 },
             },
             md::Event::Html(tag) => {

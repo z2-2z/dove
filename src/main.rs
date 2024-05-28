@@ -5,6 +5,7 @@ mod renderer;
 mod mini;
 mod logger;
 mod feed;
+mod img;
 
 use std::path::{Path, PathBuf};
 use std::fs::File;
@@ -126,11 +127,16 @@ fn main() {
             for url in renderer.urls() {
                 if !url.contains("://") {
                     let src = src_base.join(url);
+                    let dst = dst_base.join(url);
                     
                     if src.exists() {
-                        let dst = dst_base.join(url);
-                        logger.info(format!("  -> asset: {}", src.display()));
-                        std::fs::copy(src, dst).unwrap();
+                        if img::is_image(&src) {
+                            logger.info(format!("  -> converting asset to webp: {}", src.display()));
+                            img::convert_to_webp(&src, &dst);
+                        } else {
+                            logger.info(format!("  -> asset: {}", src.display()));
+                            std::fs::copy(src, dst).unwrap();
+                        }
                     }
                 }
             }

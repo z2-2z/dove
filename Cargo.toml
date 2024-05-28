@@ -20,6 +20,8 @@ minify-js = "0.5.6"
 mimalloc = { version = "0.1.39", default-features = false }
 indicatif = "0.17.7"
 colored = "2.0.4"
+webp = "0.3"
+image = "0.25"
 
 [features]
 default = []
