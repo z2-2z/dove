@@ -18,6 +18,7 @@ use posts::{
 use feed::atom::generate_atom_feed;
 use renderer::post::PostRenderer;
 use renderer::index::render_index;
+use renderer::status::render_404_page;
 use logger::Logger;
 use std::process::exit;
 use mimalloc::MiMalloc;
@@ -183,8 +184,11 @@ fn main() {
     }
     
     generate_atom_feed(
-        format!("{}/atom.xml", args.output),
+        format!("{}/atom.xml", &args.output),
         &posts
     );
     logger.debug("Generated atom feed");
+    
+    render_404_page(&args.output);
+    logger.debug("Generated 404 page");
 }

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>z2's blog</title>
+        <link rel="stylesheet" href="/css/normalize.css"/>
+        <link rel="stylesheet" href="/css/common.css"/>
+        <style>
+            body {
+                overflow: none;
+            }
+            
+            @font-face {
+                font-family: "TitleFont";
+                src: url("/fonts/title-bold.ttf") format("truetype"); 
+                font-weight: bold;
+                font-style: normal;
+            }
+            
+            #container {
+                display: grid;
+                grid-template-rows: 1fr;
+                grid-template-columns: 1fr;
+                height: 100%;
+            }
+            
+            #message {
+                font-family: TitleFont;
+                margin: 0;
+                padding: 0;
+                place-self: center;
+                font-size: 4.04em;
+            }
+            
+            @media (min-width: 1200px) {
+                #message {
+                    font-size: 40.4em;
+                    letter-spacing: -8px;
+                }
+            }
+            
+            .noselect {
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <p class="noselect" id="message">404</p>
+        </div>
+    </body>
+</html>

@@ -177,3 +177,7 @@ pub struct Categories<'a> {
 pub struct Index<'a> {
     pub posts: &'a [Post],
 }
+
+#[derive(Template)]
+#[template(path = "404.html")]
+pub struct Status404;
