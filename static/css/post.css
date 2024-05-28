@@ -3,18 +3,21 @@
     src: url("/fonts/main-bold.ttf") format("truetype");
     font-weight: bold;
     font-style: normal;
+    font-display: swap;
 }
 @font-face {
     font-family: "CodeFont";
     src: url("/fonts/code.ttf") format("truetype");
     font-weight: normal;
     font-style: normal;
+    font-display: swap;
 }
 @font-face {
     font-family: "TitleFont";
     src: url("/fonts/title.ttf") format("truetype");
     font-weight: normal;
     font-style: normal;
+    font-display: swap;
 }
 
 * {
