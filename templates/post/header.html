@@ -29,9 +29,10 @@
         <link href="/atom.xml" type="application/atom+xml" rel="alternate" title="Atom feed"/>
         
         {% if uses_code %}
-            <link rel="stylesheet" href="/css/atom-one-dark.min.css"/>
-            
-            <script src="/js/highlight.min.js"></script>
+            <link rel="preload" href="/css/atom-one-dark.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+            <noscript><link rel="stylesheet" href="/css/atom-one-dark.min.css"></noscript>
+
+            <script src="/js/highlight.min.js" defer="defer"></script>
             <script>
                 document.addEventListener("DOMContentLoaded", () => {
                     hljs.highlightAll();
@@ -39,11 +40,11 @@
             </script>
             
             {% for language in languages %}
-                <script src="/js/hljs/{{ language }}.min.js"></script>
+                <script src="/js/hljs/{{ language }}.min.js" defer="defer"></script>
             {% endfor %}
         {% endif %}
         
-        <script async data-id="101440355" src="https://static.getclicky.com/js"></script>
+        <script async data-id="101440355" src="https://static.getclicky.com/js" defer="defer"></script>
     </head>
     <body>
         <div id="container">
