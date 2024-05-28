@@ -32,7 +32,8 @@ html {
 }
 
 a.link {
-    text-decoration: none;
+    text-decoration:underline;
+    text-decoration-style: dotted;
     color: var(--link);
 }
 
