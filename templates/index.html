@@ -14,7 +14,10 @@
                 <div id="profile">
                     <img src="https://avatars.githubusercontent.com/u/88509734"/>
                 </div>
-                <h1>z2's blog</h1>
+                <div id="title-container">
+                    <span id="title">z2's blog</span>
+                    <a href="/atom.xml"><img id="rss-symbol" src="/img/rss.png"></a>
+                </div>
                 <div id="posts">
                     {% for post in posts %}
                         {% if post.metadata().startpage() %}

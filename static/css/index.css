@@ -42,15 +42,28 @@
     margin-top: 32px;
 }
 
-h1 {
+#title {
     font-family: TitleFontBold;
     font-weight: normal;
     font-size: 50pt;
     text-align: center;
+    letter-spacing: 1px;
+}
+
+#title-container {
     margin: 0;
     margin-top: 4px;
     margin-bottom: 32px;
-    letter-spacing: 1px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#rss-symbol {
+    height: 45pt;
+    width: auto;
+    margin-top: 10pt;
+    margin-left: 10pt;
 }
 
 #posts {
