@@ -155,6 +155,8 @@ pub struct PostMetadata {
     date: PostDate,
     categories: Vec<String>,
     mirror: Option<String>,
+    #[allow(dead_code)]
+    startpage: bool,
     start_content: usize,
 }
 
@@ -178,6 +180,10 @@ impl PostMetadata {
     pub fn mirror(&self) -> Option<&String> {
         self.mirror.as_ref()
     }
+    
+    pub fn startpage(&self) -> bool {
+        self.startpage
+    }
 }
 
 pub struct PostMetadataParser<'a> {
@@ -186,6 +192,7 @@ pub struct PostMetadataParser<'a> {
     date: Option<PostDate>,
     mirror: Option<String>,
     categories: Vec<String>,
+    startpage: bool,
 }
 
 impl<'a> PostMetadataParser<'a> {
@@ -196,6 +203,7 @@ impl<'a> PostMetadataParser<'a> {
             date: None,
             mirror: None,
             categories: Vec::new(),
+            startpage: false,
         };
         
         /* Lines with metadata fields */
@@ -222,6 +230,7 @@ impl<'a> PostMetadataParser<'a> {
         let date = parser.date()?;
         let categories = parser.categories;
         let mirror = parser.mirror;
+        let startpage = parser.startpage;
         let start_content = parser.cursor;
         
         Ok(PostMetadata {
@@ -229,6 +238,7 @@ impl<'a> PostMetadataParser<'a> {
             date,
             categories,
             mirror,
+            startpage,
             start_content,
         })
     }
@@ -341,18 +351,27 @@ impl<'a> PostMetadataParser<'a> {
         match &self.data[key_start..colon] {
             b"date" => self.date = Some(self.parse_date(end)?),
             b"categories" => self.categories = self.parse_list(end)?,
-            b"mirror" => self.parse_mirror(end)?,
+            b"mirror" => self.mirror = self.parse_mirror(end)?,
+            b"startpage" => self.startpage = self.parse_startpage(end)?,
             _ => return Err(self.parsing_error("Invalid metadata key")),
         }
         
         Ok(())
     }
     
-    fn parse_mirror(&mut self, end: usize) -> Result<(), ParsingError> {
+    fn parse_startpage(&mut self, end: usize) -> Result<bool, ParsingError> {
+        let value = &self.data[self.cursor..end];
+        match value {
+            b"false" => Ok(false),
+            b"true" => Ok(true),
+            _ => Err(self.parsing_error("Invalid boolean value"))
+        }
+    }
+    
+    fn parse_mirror(&mut self, end: usize) -> Result<Option<String>, ParsingError> {
         let url = &self.data[self.cursor..end];
         let url = std::str::from_utf8(url).map_err(|_| self.parsing_error("Invalid mirror URL"))?;
-        self.mirror = Some(url.to_string());
-        Ok(())
+        Ok(Some(url.to_string()))
     }
     
     fn parse_date(&mut self, end: usize) -> Result<PostDate, ParsingError> {
