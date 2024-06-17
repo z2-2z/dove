@@ -19,6 +19,7 @@ use feed::atom::generate_atom_feed;
 use renderer::post::PostRenderer;
 use renderer::index::render_index;
 use renderer::status::render_404_page;
+use renderer::archive::render_archive;
 use logger::Logger;
 use std::process::exit;
 use mimalloc::MiMalloc;
@@ -181,6 +182,10 @@ fn main() {
         /* Index page */
         logger.debug("Rendering index");
         render_index(&args.output, &posts);
+        
+        /* Archive */
+        logger.debug("Rendering archive");
+        render_archive(&args.output, &posts);
     }
     
     generate_atom_feed(

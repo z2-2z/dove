@@ -181,3 +181,9 @@ pub struct Index<'a> {
 #[derive(Template)]
 #[template(path = "404.html")]
 pub struct Status404;
+
+#[derive(Template)]
+#[template(path = "archive.html")]
+pub struct Archive<'a> {
+    pub posts: &'a [Post],
+}
