@@ -29,6 +29,16 @@
         <link href="/atom.xml" type="application/atom+xml" rel="alternate" title="Atom feed"/>
         
         {% if uses_code %}
+            <style>
+                @font-face {
+                    font-family: "CodeFont";
+                    src: url("/fonts/code.woff2") format("woff2");
+                    font-weight: normal;
+                    font-style: normal;
+                    font-display: block;
+                }
+            </style>
+        
             <link rel="preload" href="/css/atom-one-dark.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
             <noscript><link rel="stylesheet" href="/css/atom-one-dark.min.css"></noscript>
 
