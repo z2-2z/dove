@@ -338,7 +338,7 @@ b {
 
 #footer-blog {
     color: var(--color);
-    font-size: var(--font-size-2);
+    font-size: 15pt;
     font-family: TitleFont;
 }
 
