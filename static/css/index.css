@@ -21,6 +21,7 @@
 #item {
     grid-column: 2;
     overflow-x: hidden;
+    overflow-y: hidden;
 }
 
 @media (min-width: 1000px) {
@@ -64,10 +65,6 @@
     width: auto;
     margin-top: 10pt;
     margin-left: 10pt;
-}
-
-#posts {
-    margin-bottom: 32px;
 }
 
 .post-entry {
@@ -117,4 +114,9 @@ a {
 .post-title a:hover {
   animation: make-link 0.5s ease;
   animation-fill-mode: forwards;
+}
+
+#archive-link {
+    text-align: center;
+    margin-bottom: 32px;
 }
