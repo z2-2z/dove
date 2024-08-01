@@ -24,28 +24,10 @@
     overflow-y: hidden;
 }
 
-@media (min-width: 800px) {
-    #container {
-        grid-template-columns: 3.33em 1fr 3.33em;
-    }
-}
-
-@media (min-width: 1000px) {
-    #container {
-        grid-template-columns: 1fr 580px 1fr;
-    }
-}
-
-@media (min-width: 1200px) {
-    #container {
-        grid-template-columns: 1fr 780px 1fr;
-    }
-}
-
 #title {
     font-family: TitleFontBold;
     font-weight: normal;
-    font-size: 75pt;
+    font-size: 50pt;
     text-align: center;
     letter-spacing: -1px;
     margin: 0;
@@ -62,35 +44,32 @@
 }
 
 .post-entry {
-    border-left: 2px solid var(--foreground);
-    padding-left: 16px;
-    margin-bottom: 16px;
+    border-left: 3px solid var(--foreground);
+    padding-left: 1rem;
+    margin-bottom: 1rem;
 }
 
 .post-title {
-    font-size: 18pt;
-    margin-bottom: 4px;
+    font-size: 16pt;
+    margin-bottom: 0.25rem;
+}
+
+.post-metadata * {
+    font-size: 13pt;
 }
 
 .post-metadata span {
     color: var(--cite);
-    margin-right: 8px;
+    margin-right: 0.5rem;
 }
 
 .post-metadata .post-date {
-    margin-right: 16px;
+    margin-right: 0.5rem;
 }
 
 .post-date::after {
     content: "\A";
     white-space: pre;
-}
-  
-@media (min-width: 1000px) {
-    .post-date::after {
-        content: "";
-        white-space: normal;
-    }
 }
 
 a {
@@ -118,7 +97,37 @@ a {
     margin-right: 0.5rem;
 }
 
-.socials-prefix {
-    color: var(--cite);
-    display: none;
+#posts {
+    margin-bottom: 3rem;
+}
+
+@media (min-width: 800px) {
+    .post-date::after {
+        content: "";
+        white-space: normal;
+    }
+    
+    #title {
+        font-size: 75pt;
+    }
+    
+    .post-title {
+        font-size: 19pt;
+    }
+    
+    .post-metadata {
+        line-height: 1.15em;
+    }
+    
+    .post-metadata * {
+        font-size: 15pt;
+    }
+    
+    #container {
+        grid-template-columns: 1fr 680px 1fr;
+    }
+    
+    #socials > span {
+        margin-right: 1rem;
+    }
 }
