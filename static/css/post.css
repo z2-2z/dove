@@ -307,7 +307,11 @@ b {
 
 @keyframes make-link {
     0% { }
-    100% { color: var(--link); }
+    100% {
+        color: var(--link);
+        text-decoration: underline;
+        text-decoration-style: dotted;
+    }
 }
 
 @keyframes make-foreground {
@@ -358,4 +362,9 @@ p code {
 
 #headline {
     margin: 3rem 0 2.5rem 0;
+}
+
+.category:hover a {
+    animation: make-link 0.5s ease;
+    animation-fill-mode: forwards;
 }
