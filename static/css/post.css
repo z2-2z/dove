@@ -103,7 +103,7 @@ h2 {
     margin: 0;
     font-size: var(--font-size-1);
     font-weight: normal;
-    padding: 3rem 0 1rem 0;
+    padding: 3rem 0 0.5rem 0;
     font-family: TitleFont;
 }
 
@@ -357,5 +357,5 @@ p code {
 }
 
 #headline {
-    margin: 3rem 0 3rem 0;
+    margin: 3rem 0 2.5rem 0;
 }
