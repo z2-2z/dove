@@ -24,47 +24,41 @@
     overflow-y: hidden;
 }
 
-@media (min-width: 1000px) {
+@media (min-width: 800px) {
     #container {
-        grid-template-columns: 3fr 6fr 3fr;
+        grid-template-columns: 3.33em 1fr 3.33em;
     }
 }
 
-#profile img {
-    width: 250px;
-    border-radius: 100000px;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    background-color: rgba(255, 255, 255, 0.02);
+@media (min-width: 1000px) {
+    #container {
+        grid-template-columns: 1fr 580px 1fr;
+    }
 }
 
-#profile {
-    display: flex;
-    justify-content: center;
-    margin-top: 32px;
+@media (min-width: 1200px) {
+    #container {
+        grid-template-columns: 1fr 780px 1fr;
+    }
 }
 
 #title {
     font-family: TitleFontBold;
     font-weight: normal;
-    font-size: 50pt;
+    font-size: 75pt;
     text-align: center;
-    letter-spacing: 1px;
+    letter-spacing: -1px;
+    margin: 0;
+    margin-bottom: 0.5rem;
 }
 
 #title-container {
     margin: 0;
-    margin-top: 4px;
-    margin-bottom: 32px;
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-#rss-symbol {
-    height: 45pt;
-    width: auto;
-    margin-top: 10pt;
-    margin-left: 10pt;
+    flex-direction: column;
+    padding: 3rem 0 3rem 0;
 }
 
 .post-entry {
@@ -108,15 +102,23 @@ a {
 
 @keyframes make-link {
     0% { }
-    100% { color: var(--link); }
+    100% {
+        color: var(--link);
+        text-decoration: underline;
+        text-decoration-style: dotted;
+    }
 }
 
-.post-title a:hover {
+.post-title a:hover, #socials a:hover, .post-metadata a:hover {
   animation: make-link 0.5s ease;
   animation-fill-mode: forwards;
 }
 
-#archive-link {
-    text-align: center;
-    margin-bottom: 32px;
+#socials > span {
+    margin-right: 0.5rem;
+}
+
+.socials-prefix {
+    color: var(--cite);
+    display: none;
 }

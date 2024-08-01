@@ -11,14 +11,13 @@
     <body>
         <div id="container">
             <div id="item">
-                <div id="profile">
-                    <a href="https://github.com/z2-2z">
-                        <img src="https://avatars.githubusercontent.com/u/88509734"/>
-                    </a>
-                </div>
                 <div id="title-container">
-                    <span id="title">z2's blog</span>
-                    <a href="/atom.xml"><img id="rss-symbol" src="/img/rss.png"></a>
+                    <h1 id="title">z2's blog</h1>
+                    <div id="socials">
+                        <span><span class="socials-prefix">&gt;</span> <a href="https://github.com/z2-2z">github</a></span>
+                        <span><span class="socials-prefix">&gt;</span> <a href="/atom.xml">feed</a></span>
+                        <span><span class="socials-prefix">&gt;</span> <a href="/archive.html">archive</a></span>
+                    </div>
                 </div>
                 <div id="posts">
                     {% for post in posts %}
@@ -36,9 +35,6 @@
                             </div>
                         {% endif %}
                     {% endfor %}
-                </div>
-                <div id="archive-link">
-                    <a href="/archive.html">See all posts...</a>
                 </div>
             </div>
         </div>

@@ -33,4 +33,9 @@ html,body {
 
 * {
     font-family: MainFont;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-smooth: always;
+    text-rendering: optimizeLegibility;
 }
+
