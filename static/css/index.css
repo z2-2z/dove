@@ -54,7 +54,7 @@
     margin-bottom: 0.25rem;
 }
 
-.post-metadata * {
+.post-metadata span, .post-metadata span * {
     font-size: 13pt;
 }
 
@@ -64,7 +64,7 @@
 }
 
 .post-metadata .post-date {
-    margin-right: 0.5rem;
+    margin-right: 1rem;
 }
 
 .post-date::after {
