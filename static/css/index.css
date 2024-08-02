@@ -54,7 +54,11 @@
     margin-bottom: 0.25rem;
 }
 
-.post-metadata span, .post-metadata span * {
+.post-metadata {
+    line-height: 1.5em;
+}
+
+.post-metadata, .post-metadata span, .post-metadata span * {
     font-size: 13pt;
 }
 
@@ -101,7 +105,7 @@ a:hover {
     }
     
     #container {
-        grid-template-columns: 1fr 580px 1fr;
+        grid-template-columns: 1fr 680px 1fr;
     }
     
     #socials > span {

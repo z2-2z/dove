@@ -90,7 +90,7 @@
     line-height: 1.5em;
 }
 
-.post-metadata span, .post-metadata span * {
+.post-metadata, .post-metadata span, .post-metadata span * {
     font-size: 13pt;
 }
 
