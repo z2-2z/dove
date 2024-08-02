@@ -19,7 +19,7 @@
     display: grid;
     grid-template-rows: 1fr;
     grid-template-columns: 1fr 48px;
-    margin-bottom: 32px;
+    margin-bottom: 1rem;
 }
   
 #search-text {
@@ -31,6 +31,7 @@
     padding-left:12px;
     padding-top: 8px;
     padding-bottom: 8px;
+    outline: none;
 }
 
 #search-submit {
@@ -40,4 +41,83 @@
 
 #search-submit:hover {
     cursor: pointer;
+}
+
+#container {
+    width: 100%;
+    min-height: 100%;
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 2em 1fr 2em;
+}
+
+#item {
+    grid-column: 2;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+#title {
+    text-align: center;
+    margin: 3rem 0 3rem 0;
+}
+
+#title h1 {
+    font-family: TitleFont;
+    font-size: 50pt;
+    letter-spacing: -1px;
+    margin: 0;
+}
+
+.post-entry {
+    border-left: 3px solid var(--foreground);
+    padding-left: 1rem;
+    margin-bottom: 1rem;
+}
+
+.post-title {
+    font-size: 16pt;
+    margin-bottom: 0.25rem;
+}
+
+.post-metadata {
+    line-height: 1.5em;
+}
+
+.post-metadata * {
+    font-size: 13pt;
+}
+
+.post-metadata span {
+    color: var(--cite);
+    margin-right: 0.5rem;
+}
+
+.post-metadata .post-date {
+    margin-right: 1rem;
+}
+
+.post-date::after {
+    content: "\A";
+    white-space: pre;
+}
+
+a:hover {
+    animation: make-link 0.5s ease;
+    animation-fill-mode: forwards;
+}
+
+@media (min-width: 800px) {
+    #container {
+        grid-template-columns: 1fr 680px 1fr;
+    }
+    
+    .post-date::after {
+        content: "";
+        white-space: normal;
+    }
+    
+    .post-metadata {
+        line-height: 1.15em;
+    }
 }

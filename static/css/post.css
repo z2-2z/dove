@@ -37,13 +37,6 @@ span.quote, td.cite-number {
     color: var(--cite);
 }
 
-a {
-    color: inherit;
-    text-decoration: inherit;
-    font-family: inherit;
-    font-size: inherit;
-}
-
 #container {
     width: 100%;
     min-height: 100%;
@@ -296,15 +289,6 @@ b {
 
 .slightly-bold {
     font-weight: bold;
-}
-
-@keyframes make-link {
-    0% { }
-    100% {
-        color: var(--link);
-        text-decoration: underline;
-        text-decoration-style: dotted;
-    }
 }
 
 @keyframes make-foreground {
