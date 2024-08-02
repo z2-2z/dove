@@ -1,3 +1,11 @@
+@font-face {
+    font-family: "TitleFont";
+    src: url("/fonts/title.woff2") format("woff2");
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+
 .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */

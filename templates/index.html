@@ -29,7 +29,7 @@
                                 <div class="post-metadata">
                                     <span class="post-date">{{ "{:02} {}. {:04}"|format(post.metadata().date().day(), post.metadata().date().month_name(), post.metadata().date().year()) }}</span>
                                     {% for cat in post.metadata().categories() %}
-                                        <span><a href="/?#category%3A%22{{ cat }}%22">#{{ cat }}</a></span>
+                                        <span><a href="/archive.html?#category%3A%22{{ cat }}%22">#{{ cat }}</a></span>
                                     {% endfor %}
                                 </div>
                             </div>
