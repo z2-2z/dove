@@ -27,7 +27,7 @@
 #title {
     font-family: TitleFontBold;
     font-weight: normal;
-    font-size: 50pt;
+    font-size: 45pt;
     text-align: center;
     letter-spacing: -1px;
     margin: 0;
@@ -50,7 +50,7 @@
 }
 
 .post-title {
-    font-size: 16pt;
+    font-size: 15pt;
     margin-bottom: 0.25rem;
 }
 
@@ -59,7 +59,7 @@
 }
 
 .post-metadata, .post-metadata span, .post-metadata span * {
-    font-size: 13pt;
+    font-size: 12pt;
 }
 
 .post-metadata span {
@@ -83,7 +83,7 @@ a:hover {
 
 #socials > span {
     margin-right: 0.5rem;
-    font-size: 14pt;
+    font-size: 12pt;
 }
 
 #posts {
@@ -97,7 +97,8 @@ a:hover {
     }
     
     #title {
-        font-size: 75pt;
+        font-size: 65pt;
+        margin-bottom: 1rem;
     }
     
     .post-metadata {
@@ -109,7 +110,16 @@ a:hover {
     }
     
     #socials > span {
-        margin-right: 0.75rem;
+        margin-right: 1rem;
         font-size: 15pt;
+    }
+    
+    .post-metadata, .post-metadata span, .post-metadata span * {
+        font-size: 13pt;
+    }
+    
+    .post-title {
+        font-size: 16pt;
+        margin-bottom: 0.25rem;
     }
 }
