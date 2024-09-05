@@ -71,7 +71,7 @@ span.quote, td.cite-number {
 
 p, li {
     font-size: var(--font-size-2);
-    line-height: 1.666;
+    line-height: 1.7555555;
 }
 
 @media (min-width: 1000px) {
@@ -89,7 +89,7 @@ h2 {
     margin: 0;
     font-size: var(--font-size-1);
     font-weight: normal;
-    padding: 3rem 0 1rem 0;
+    padding: 2rem 0 1rem 0;
     font-family: TitleFont;
 }
 
