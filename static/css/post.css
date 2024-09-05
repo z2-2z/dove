@@ -269,7 +269,7 @@ ul, ol {
 }
 
 #date {
-    margin-bottom: 1rem;
+    margin-bottom: .5rem;
 }
 
 @media (min-width: 800px) {
