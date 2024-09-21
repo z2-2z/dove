@@ -17,10 +17,10 @@ It comes with a combination of features that I could not find in other generator
 
 | Switch                | Description                                                             |
 |-----------------------|-------------------------------------------------------------------------|
-| -i, --input <DIR>     | The folder that contains the source of all posts                        |
-| -o, --output <DIR>    | The folder that holds the generated html pages                          |
+| -i, --input \<DIR>     | The folder that contains the source of all posts                        |
+| -o, --output \<DIR>    | The folder that holds the generated html pages                          |
 | -f, --force           | Force rendering of all posts even if their source has not been modified |
-| --static-folder <DIR> | Path to dove's folder with static files (default: `./static/`)          |
+| --static-folder \<DIR> | Path to dove's folder with static files (default: `./static/`)          |
 
 ## Input Folder
 `dove` recursively scans through the input folder and treats every file ending in `.md` as a blog post.
@@ -49,10 +49,10 @@ The following keys are supported:
 
 | Element                          | Description                                                                                                                               |
 |----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| <table-title>...</table-title>   | Put this before a table to set the description of the table                                                                               |
-| <figure-title>...</figure-title> | Put this before an image to set the description of the image                                                                              |
-| <cite>...</cite>                 | Use this to create a citation of a source identified by a symbolic name that comes between the tags. Multiple sources are also supported. |
-| <blank-line>                     | Inserts a blank line at the given position                                                                                                |
+| \<table-title>...\</table-title>   | Put this before a table to set the description of the table                                                                               |
+| \<figure-title>...\</figure-title> | Put this before an image to set the description of the image                                                                              |
+| \<cite>...\</cite>                 | Use this to create a citation of a source identified by a symbolic name that comes between the tags. Multiple sources are also supported. |
+| \<blank-line>                     | Inserts a blank line at the given position                                                                                                |
 
 ### Bibliography
 The bibliography comes at the end of the document and is created by putting a separator `---` after the content.
