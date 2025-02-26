@@ -7,7 +7,7 @@
     --foreground: #F5F5F5;
     
     /* Font sizes */
-    --font-size-0: 36pt;
+    --font-size-0: 38pt;
     --font-size-1: 27pt;
     --font-size-2: 13pt;
     --font-size-2b: 13pt;
@@ -43,7 +43,6 @@ a {
     100% {
         color: var(--link);
         text-decoration: underline;
-        text-decoration-style: dotted;
     }
 }
 

@@ -19,7 +19,6 @@ html {
 
 a.link {
     text-decoration:underline;
-    text-decoration-style: dotted;
     color: var(--link);
 }
 
@@ -89,7 +88,7 @@ h2 {
     margin: 0;
     font-size: var(--font-size-1);
     font-weight: normal;
-    padding: 2rem 0 0.5rem 0;
+    padding: 3rem 0 0.5rem 0;
     font-family: TitleFont;
 }
 
