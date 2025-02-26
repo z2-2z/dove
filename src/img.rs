@@ -1,5 +1,5 @@
 use std::path::Path;
-use image::io::Reader as ImageReader;
+use image::ImageReader;
 
 pub fn is_image<P: AsRef<Path>>(path: P) -> bool {
     let path = path.as_ref();
