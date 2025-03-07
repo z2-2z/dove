@@ -106,7 +106,7 @@ hr {
 }
 
 #citations td {
-    font-size: 14pt;
+    font-size: var(--font-size-2);
 }
 
 .figure img {
@@ -205,7 +205,7 @@ hr {
 }
 
 .blockquote p {
-    font-size: 13pt;
+    font-size: var(--font-size-2);
 }
 
 ul, ol {
@@ -318,7 +318,7 @@ b {
 
 #footer-blog {
     color: var(--color);
-    font-size: 15pt;
+    font-size: var(--font-size-2);
     font-family: TitleFont;
 }
 
