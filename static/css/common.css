@@ -6,12 +6,23 @@
     --cite: #92938A;
     --foreground: #F5F5F5;
     
-    /* Font sizes */
-    --font-size-0: 40pt;
-    --font-size-1: 30pt;
-    --font-size-2: 13pt;
-    --font-size-2b: 13pt;
-    --font-size-3: 10pt;
+    /* Font sizes for mobile */
+    --font-size-0: 35pt;
+    --font-size-1: 25pt;
+    --font-size-2: 12pt;
+    --font-size-2b: 12pt;
+    --font-size-3: 9pt;
+}
+
+@media (min-width: 800px) {
+    :root {
+        /* Font sizes for tablet+ */
+        --font-size-0: 40pt;
+        --font-size-1: 30pt;
+        --font-size-2: 13pt;
+        --font-size-2b: 13pt;
+        --font-size-3: 10pt;
+    }
 }
 
 @font-face {
