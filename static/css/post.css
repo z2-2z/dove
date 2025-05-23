@@ -259,9 +259,9 @@ ul, ol {
 }
 
 #metadata {
-    color: var(--cite);
+    color: var(--foreground);
     font-size: var(--font-size-2);
-    padding: 1rem 0 0 0;
+    padding: 1.5rem 0 0 0;
     display: flex;
     justify-content: space-between;
     flex-direction: column-reverse;
@@ -314,6 +314,7 @@ b {
     flex-direction: row;
     align-items: center;
     justify-content: space-around;
+    margin-bottom: 1rem;
 }
 
 #footer-blog {
@@ -337,7 +338,7 @@ p code {
 }
 
 #headline {
-    margin: 3rem 0 3rem 0;
+    margin: 4rem 0 4rem 0;
 }
 
 .category:hover a {
