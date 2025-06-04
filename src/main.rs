@@ -109,55 +109,60 @@ fn main() {
             },
         };
         
-        let mut renderer = PostRenderer::new(&args.output, &post);
+        if post.headless() {
+            logger.info(format!("Picked up {}", path.display()));
+            updated_posts = true;
+        } else {
+            let mut renderer = PostRenderer::new(&args.output, &post);
+
+            if args.force || needs_updating(&path, renderer.output_file()) {
+                logger.info(format!("Rendering {}", path.display()));
         
-        if !post.headless() && (args.force || needs_updating(&path, renderer.output_file())) {
-            logger.info(format!("Rendering {}", path.display()));
-            
-            if let Err(err) = renderer.render(&content, &post) {
-                logger.error(format!("{}: {}", path.display(), err));
-                erroneous_posts = true;
-                continue;
-            }
-            
-            /* Copy static file mentions */
-            assert!(path.pop());
-            let src_base = path;
-            let mut dst_base = renderer.output_file().to_path_buf();
-            assert!(dst_base.pop());
-            
-            for url in renderer.urls() {
-                if !url.contains("://") {
-                    let src = src_base.join(url);
-                    let dst = dst_base.join(url);
-                    
-                    if src.exists() {
-                        if img::is_image(&src) {
-                            logger.info(format!("  -> converting asset to webp: {}", src.display()));
-                            img::convert_to_webp(&src, &dst);
-                        } else {
-                            logger.info(format!("  -> asset: {}", src.display()));
-                            std::fs::copy(src, dst).unwrap();
-                        }
-                    }
-                }
-            }
-            
-            /* Check that code languages are correct */
-            for language in renderer.languages() {
-                let path = format!("{}/js/hljs/{}.min.js", args.static_folder, language);
-                let path = Path::new(&path);
-                
-                if !path.exists() {
-                    logger.error(format!("{}: codeblock uses unknown language '{}'", path.display(), language));
+                if let Err(err) = renderer.render(&content, &post) {
+                    logger.error(format!("{}: {}", path.display(), err));
                     erroneous_posts = true;
                     continue;
                 }
-            }
-            
-            updated_posts = true;
-        }
         
+                /* Copy static file mentions */
+                assert!(path.pop());
+                let src_base = path;
+                let mut dst_base = renderer.output_file().to_path_buf();
+                assert!(dst_base.pop());
+        
+                for url in renderer.urls() {
+                    if !url.contains("://") {
+                        let src = src_base.join(url);
+                        let dst = dst_base.join(url);
+                
+                        if src.exists() {
+                            if img::is_image(&src) {
+                                logger.info(format!("  -> converting asset to webp: {}", src.display()));
+                                img::convert_to_webp(&src, &dst);
+                            } else {
+                                logger.info(format!("  -> asset: {}", src.display()));
+                                std::fs::copy(src, dst).unwrap();
+                            }
+                        }
+                    }
+                }
+        
+                /* Check that code languages are correct */
+                for language in renderer.languages() {
+                    let path = format!("{}/js/hljs/{}.min.js", args.static_folder, language);
+                    let path = Path::new(&path);
+            
+                    if !path.exists() {
+                        logger.error(format!("{}: codeblock uses unknown language '{}'", path.display(), language));
+                        erroneous_posts = true;
+                        continue;
+                    }
+                }
+        
+                updated_posts = true;
+            }
+        }
+                
         posts.push(post);
         drop(content);
     }
