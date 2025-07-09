@@ -133,17 +133,11 @@ impl PostRenderer {
             year: post.metadata().date().year(),
         });
         
-        #[cfg(not(feature = "test-content"))]
-        {
-            let mut parser = md::Parser::new_ext(content, options);
-            
-            while let Some(event) = parser.next() {
-                self.dispatch(event, &mut parser, &mut minimizer)?;
-            }
-        }
+        let mut parser = md::Parser::new_ext(content, options);
         
-        #[cfg(feature = "test-content")]
-        minimizer.append_template(TestContent {});
+        while let Some(event) = parser.next() {
+            self.dispatch(event, &mut parser, &mut minimizer)?;
+        }
         
         minimizer.append_template(PostFooter {});
         minimizer.minimize(&self.file);

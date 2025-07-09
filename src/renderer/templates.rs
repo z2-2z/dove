@@ -16,11 +16,6 @@ pub struct PostHeader<'a> {
 #[template(path = "post/footer.html")]
 pub struct PostFooter;
 
-#[cfg(feature = "test-content")]
-#[derive(Template)]
-#[template(path = "test/content.html")]
-pub struct TestContent;
-
 #[derive(Template)]
 #[template(path = "post/headline.html")]
 pub struct Headline<'a> {

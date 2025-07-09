@@ -22,7 +22,3 @@ indicatif = "0.17"
 colored = "2.0"
 webp = "0.3"
 image = "0.25"
-
-[features]
-default = []
-test-content = []

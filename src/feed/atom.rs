@@ -3,7 +3,6 @@ use crate::posts::{
     metadata::PostDate,
 };
 use askama::Template;
-use std::path::Path;
 
 #[derive(Template)]
 #[template(path = "feed/atom_entry.xml")]
@@ -37,7 +36,7 @@ fn atom_timestamp(date: &PostDate) -> String {
     format!("{:04}-{:02}-{:02}T00:00:00Z", date.year(), date.month(), date.day())
 }
 
-pub fn generate_atom_feed<P: AsRef<Path>>(filename: P, posts: &[Post]) {
+pub fn generate_atom_feed(output_dir: &str, posts: &[Post]) {
     let latest_date = max_post_date(posts);
     
     if latest_date.year() == 0 {
@@ -68,6 +67,6 @@ pub fn generate_atom_feed<P: AsRef<Path>>(filename: P, posts: &[Post]) {
         entries,
     };
     
-    let mut outfile = std::fs::File::create(filename).expect("Could not create atom feed");
+    let mut outfile = std::fs::File::create(format!("{}/atom.xml", output_dir)).expect("Could not create atom feed");
     feed.write_into(&mut outfile).expect("Could not write to atom feed");
 }

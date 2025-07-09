@@ -122,8 +122,10 @@ fn render(input: String, output: String, force: bool, static_folder: String) {
         };
         
         if post.headless() {
-            logger.info(format!("Picked up {}", path.display()));
-            updated_posts = true;
+            if force {
+                logger.info(format!("Picked up {}", path.display()));
+                updated_posts = true;
+            }
         } else {
             let mut renderer = PostRenderer::new(&output, &post);
 
@@ -192,6 +194,7 @@ fn render(input: String, output: String, force: bool, static_folder: String) {
         &output,
         &logger,
     );
+    render_404_page(&output);
     
     if force || updated_posts {
         posts.sort_by(|a, b| b.metadata().date().cmp(a.metadata().date()));
@@ -203,16 +206,11 @@ fn render(input: String, output: String, force: bool, static_folder: String) {
         /* Archive */
         logger.debug("Rendering archive");
         render_archive(&output, &posts);
+        
+        /* Feed */
+        logger.debug("Generating atom feed");
+        generate_atom_feed(&output, &posts);    
     }
-    
-    generate_atom_feed(
-        format!("{}/atom.xml", &output),
-        &posts
-    );
-    logger.debug("Generated atom feed");
-    
-    render_404_page(&output);
-    logger.debug("Generated 404 page");
 }
 
 fn new(output: String) {
