@@ -7,6 +7,7 @@ mod logger;
 mod feed;
 mod img;
 
+use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::fs::File;
 use memmap2::Mmap;
@@ -35,17 +36,29 @@ fn map_file<P: AsRef<Path>>(path: P) -> Mmap {
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg(short, long, value_name = "DIR")]
-    input: String,
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(clap::Subcommand)]
+enum Commands {
+    Render {
+        #[arg(short, long, value_name = "DIR")]
+        input: String,
+        
+        #[arg(short, long, value_name = "DIR")]
+        output: String,
+        
+        #[arg(short, long)]
+        force: bool,
+        
+        #[arg(long, default_value_t = String::from("static"))]
+        static_folder: String,
+    },
     
-    #[arg(short, long, value_name = "DIR")]
-    output: String,
-    
-    #[arg(short, long)]
-    force: bool,
-    
-    #[arg(long, default_value_t = String::from("static"))]
-    static_folder: String,
+    New {
+        output: String,
+    },
 }
 
 #[inline]
@@ -90,15 +103,14 @@ fn copy_static_files(force: bool, dir: &Path, input: &Path, output: &str, logger
     }
 }
 
-fn main() {
-    let args = Args::parse();
+fn render(input: String, output: String, force: bool, static_folder: String) {
     let mut posts = Vec::new();
     let mut erroneous_posts = false;
     let mut updated_posts = false;
     let mut logger = Logger::new();
     
     /* Generate posts */
-    for mut path in PostIterator::read(&args.input) {
+    for mut path in PostIterator::read(&input) {
         let content = map_file(&path);
         let post = match Post::new(&content) {
             Ok(post) => post,
@@ -113,9 +125,9 @@ fn main() {
             logger.info(format!("Picked up {}", path.display()));
             updated_posts = true;
         } else {
-            let mut renderer = PostRenderer::new(&args.output, &post);
+            let mut renderer = PostRenderer::new(&output, &post);
 
-            if args.force || needs_updating(&path, renderer.output_file()) {
+            if force || needs_updating(&path, renderer.output_file()) {
                 logger.info(format!("Rendering {}", path.display()));
         
                 if let Err(err) = renderer.render(&content, &post) {
@@ -149,7 +161,7 @@ fn main() {
         
                 /* Check that code languages are correct */
                 for language in renderer.languages() {
-                    let path = format!("{}/js/hljs/{}.min.js", args.static_folder, language);
+                    let path = format!("{}/js/hljs/{}.min.js", static_folder, language);
                     let path = Path::new(&path);
             
                     if !path.exists() {
@@ -162,7 +174,7 @@ fn main() {
                 updated_posts = true;
             }
         }
-                
+        
         posts.push(post);
         drop(content);
     }
@@ -174,31 +186,46 @@ fn main() {
     
     /* Copy static content */
     copy_static_files(
-        args.force,
-        Path::new(&args.static_folder),
-        Path::new(&args.static_folder),
-        &args.output,
+        force,
+        Path::new(&static_folder),
+        Path::new(&static_folder),
+        &output,
         &logger,
     );
     
-    if args.force || updated_posts {
+    if force || updated_posts {
         posts.sort_by(|a, b| b.metadata().date().cmp(a.metadata().date()));
         
         /* Index page */
         logger.debug("Rendering index");
-        render_index(&args.output, &posts);
+        render_index(&output, &posts);
         
         /* Archive */
         logger.debug("Rendering archive");
-        render_archive(&args.output, &posts);
+        render_archive(&output, &posts);
     }
     
     generate_atom_feed(
-        format!("{}/atom.xml", &args.output),
+        format!("{}/atom.xml", &output),
         &posts
     );
     logger.debug("Generated atom feed");
     
-    render_404_page(&args.output);
+    render_404_page(&output);
     logger.debug("Generated 404 page");
+}
+
+fn new(output: String) {
+    let content = include_str!("new-post-template.md");
+    let mut file = File::create(output).expect("Could not create output file");
+    write!(&mut file, "{}", content).expect("Could not write to output file");
+}
+
+fn main() {
+    let args = Args::parse();
+    
+    match args.command {
+        Commands::Render { input, output, force, static_folder } => render(input, output, force, static_folder),
+        Commands::New { output } => new(output),
+    }
 }

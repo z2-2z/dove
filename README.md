@@ -13,7 +13,8 @@ It comes with a combination of features that I could not find in other generator
 - __extendable__: If I ever think that a feature is missing, I can quickly add it
 
 ## CLI
-`dove` should be run out of the repository while `--input` and `--output` point to corresponding folders.
+### Subcommand: render
+`dove render` should be run out of the repository while `--input` and `--output` point to corresponding folders.
 
 | Switch                | Description                                                             |
 |-----------------------|-------------------------------------------------------------------------|
@@ -21,6 +22,9 @@ It comes with a combination of features that I could not find in other generator
 | -o, --output \<DIR>    | The folder that holds the generated html pages                          |
 | -f, --force           | Force rendering of all posts even if their source has not been modified |
 | --static-folder \<DIR> | Path to dove's folder with static files (default: `./static/`)          |
+
+### Subcommand: new
+Execute `dove new <path-to-post>` to place a small template post into the supplied path.
 
 ## Input Folder
 `dove` recursively scans through the input folder and treats every file ending in `.md` as a blog post.
