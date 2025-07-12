@@ -4,7 +4,7 @@ use anyhow::Result;
 use pulldown_cmark as md;
 use askama::Template;
 
-use crate::{transformer, engine::templates::*, parser};
+use crate::{transformer, engine::templates::*, parser, posts::Post};
 
 #[inline]
 fn append_template<T: Template>(output: &mut String, template: T) -> Result<()> {
@@ -31,6 +31,7 @@ fn make_id(id: &str) -> String {
 
 #[derive(Debug)]
 pub struct Renderer {
+    uses_code: bool,
     table_cursor: usize,
     figure_cursor: usize,
     reference_cursor: usize,
@@ -44,6 +45,7 @@ pub struct Renderer {
 impl Renderer {
     pub fn new() -> Self {
         Self {
+            uses_code: false,
             table_cursor: 1,
             figure_cursor: 1,
             reference_cursor: 1,
@@ -55,7 +57,28 @@ impl Renderer {
         }
     }
     
-    pub fn render(&mut self, content: &[u8], basedir: &Path) -> Result<String> {
+    pub fn render_header(&self, post: &Post) -> Result<String> {
+        let mut output = String::with_capacity(4096);
+        append_template(&mut output, PostHeader {
+            title: post.metadata().title(),
+            uses_code: self.uses_code,
+            languages: &self.languages,
+            keywords: post.metadata().categories().join(", "),
+            url: post.url(),
+        })?;
+        append_template(&mut output, Headline {
+            headline: post.metadata().title(),
+        })?;
+        append_template(&mut output, Categories {
+            categories: post.metadata().categories(),
+            day: post.metadata().date().day(),
+            month: post.metadata().date().month_name(),
+            year: post.metadata().date().year(),
+        })?;
+        Ok(output)
+    }
+    
+    pub fn render_body(&mut self, content: &[u8], basedir: &Path) -> Result<String> {
         let content = std::str::from_utf8(content)?;
         let mut output = String::with_capacity(128 * 1024);
         let mut options = md::Options::empty();
@@ -115,6 +138,7 @@ impl Renderer {
                         content: data,
                     })?;
                     self.languages.insert(language);
+                    self.uses_code = true;
                 },
                 md::Tag::List(start_number) => {
                     if start_number.is_some() {
@@ -305,6 +329,7 @@ impl Renderer {
                 append_template(output, Tag {
                     content: content.as_ref(),
                 })?;
+                self.uses_code = true;
             },
             md::Event::Text(text) => {
                 append_template(output, Text {
@@ -439,6 +464,12 @@ impl Renderer {
         
         Ok(())
     }
+    
+    pub fn render_footer(&self) -> Result<String> {
+        let mut output = String::with_capacity(1024);
+        append_template(&mut output, PostFooter {})?;
+        Ok(output)
+    }
 }
 
 #[cfg(test)]
@@ -449,7 +480,7 @@ mod tests {
     fn render_example() {
         let post = crate::posts::Post::new("test-data/renderer/example.md").unwrap();
         let mut renderer = Renderer::new();
-        let output = renderer.render(post.content(), Path::new("test-data/renderer/")).unwrap();
+        let output = renderer.render_body(post.content(), Path::new("test-data/renderer/")).unwrap();
         println!("{output}");
         println!("{renderer:?}");
     }

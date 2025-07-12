@@ -26,7 +26,10 @@ fn main() -> Result<()> {
             let html_path;
             
             if let Some(filename) = post.filename() {
-                renderer.render(post.content(), &input_basedir)?;
+                // The order is important!
+                let body = renderer.render_body(post.content(), &input_basedir)?;
+                let header = renderer.render_header(&post)?;
+                let footer = renderer.render_footer()?;
                 
                 let output_file = format!("OUTPUT/{filename}");
                 
