@@ -18,6 +18,8 @@ fn main() -> Result<()> {
         if rerender {
             let post = posts::Post::new(input_file)?;
             
+            
+            
             // update cache entry
         }
         

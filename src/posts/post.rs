@@ -359,7 +359,7 @@ pub struct Post {
     metadata: PostMetadata,
     url: String,
     filename: Option<PathBuf>,
-    content_offset: usize,
+    content_offset: Option<usize>,
     file: Mmap,
 }
 
@@ -371,10 +371,12 @@ impl Post {
         
         let filename;
         let url;
+        let content_offset;
         
         if let Some(mirror) = parser.mirror {
             url = mirror;
             filename = None;
+            content_offset = None;
         } else {
             let encoded = format!(
                 "{:04}/{}/{:02}/{}",
@@ -385,18 +387,19 @@ impl Post {
             );
             filename = Some(PathBuf::from(&encoded));
             url = format!("/{encoded}");
+            content_offset = Some(parser.content_offset);
         }
         
         Ok(Self {
             metadata: parser.metadata,
             url,
             filename,
-            content_offset: parser.content_offset,
+            content_offset,
             file,
         })
     }
     
-    pub fn meta(&self) -> &PostMetadata {
+    pub fn metadata(&self) -> &PostMetadata {
         &self.metadata
     }
     
@@ -404,12 +407,12 @@ impl Post {
         &self.url
     }
     
-    pub fn filename(&self) -> &Path {
-        self.filename.as_ref().expect("Application tried to access a posts content that has none")
+    pub fn filename(&self) -> Option<&Path> {
+        self.filename.as_ref().map(|v| &**v)
     }
     
-    pub fn content(&self) -> &[u8] {
-        &self.file[self.content_offset..]
+    pub fn content(&self) -> Option<&[u8]> {
+        self.content_offset.map(|o| &self.file[o..])
     }
 }
 
