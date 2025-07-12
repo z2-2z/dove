@@ -57,6 +57,14 @@ impl Renderer {
         }
     }
     
+    pub fn file_mentions(&self) -> &HashSet<PathBuf> {
+        &self.file_mentions
+    }
+    
+    pub fn languages_used(&self) -> &HashSet<String> {
+        &self.languages
+    }
+    
     pub fn render_header(&self, post: &Post) -> Result<String> {
         let mut output = String::with_capacity(4096);
         append_template(&mut output, PostHeader {
@@ -213,7 +221,7 @@ impl Renderer {
                     })?;
                     let path = basedir.join(dest_url.as_ref());
                     if path.exists() {
-                        self.file_mentions.insert(path);
+                        self.file_mentions.insert(PathBuf::from(dest_url.as_ref()));
                     }
                 },
                 md::Tag::Image { dest_url, .. } => {
@@ -222,7 +230,7 @@ impl Renderer {
                     let mut path = basedir.join(dest_url.as_ref());
                     
                     if path.exists() {
-                        self.file_mentions.insert(path.clone());
+                        self.file_mentions.insert(PathBuf::from(dest_url.as_ref()));
                     }
                     
                     let url = if path.exists() && transformer::is_image(&path) {

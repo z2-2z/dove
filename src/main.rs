@@ -1,3 +1,4 @@
+use std::path::{PathBuf, Path};
 use anyhow::Result;
 
 mod engine;
@@ -21,19 +22,43 @@ fn main() -> Result<()> {
         if rerender {
             let mut input_basedir = input_file.clone();
             input_basedir.pop();
+            let mut output_basedir;
             let post = posts::Post::new(input_file)?;
             let mut renderer = engine::Renderer::new();
             let html_path;
             
             if let Some(filename) = post.filename() {
                 // The order is important!
-                let body = renderer.render_body(post.content(), &input_basedir)?;
-                let header = renderer.render_header(&post)?;
-                let footer = renderer.render_footer()?;
+                let mut body = renderer.render_body(post.content(), &input_basedir)?.into_bytes();
+                let mut header = renderer.render_header(&post)?.into_bytes();
+                let mut footer = renderer.render_footer()?.into_bytes();
                 
+                // Check languages
+                for lang in renderer.languages_used() {
+                    let path = format!("STATIC_FOLDER/js/hljs/{lang}.min.js");
+                    let path = Path::new(&path);
+                    
+                    if !path.exists() {
+                        anyhow::bail!("Language {lang} does not exist");
+                    }
+                }
+                
+                // Render page
                 let output_file = format!("OUTPUT/{filename}");
+                output_basedir = PathBuf::from(&output_file);
+                output_basedir.pop();
                 
-                // minify
+                transformer::transform_buffer(&mut header, &output_file, true)?;
+                transformer::transform_buffer(&mut body, &output_file, false)?;
+                transformer::transform_buffer(&mut footer, &output_file, false)?;
+                
+                // Copy file mentions and hljs languages
+                for path in renderer.file_mentions() {
+                    transformer::transform_file(
+                        input_basedir.join(path),
+                        output_basedir.join(path)
+                    )?;
+                }
                 
                 html_path = output_file;
             } else {
