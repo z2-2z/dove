@@ -29,6 +29,7 @@ fn make_id(id: &str) -> String {
         .collect()
 }
 
+#[derive(Debug)]
 pub struct Renderer {
     table_cursor: usize,
     figure_cursor: usize,
@@ -450,5 +451,6 @@ mod tests {
         let mut renderer = Renderer::new();
         let output = renderer.render(post.content(), Path::new("test-data/renderer/")).unwrap();
         println!("{output}");
+        println!("{renderer:?}");
     }
 }

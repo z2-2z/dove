@@ -51,6 +51,8 @@ _emphasis_ and __bold__ and ~~strikethrough~~ and [a link](url).
 <figure-title>Image description using _markdown_ ~~or else~~</figure-title>
 ![](./test.png)
 
+![](http://example.com/img)
+
 text with  
 hardbreak or     
 other hardbreak
