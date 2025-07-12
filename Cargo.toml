@@ -10,6 +10,7 @@ panic = "abort"
 debug = true
 
 [dependencies]
+anyhow = "1.0"
 clap = { version = "4.4", features = ["derive", "wrap_help", "env"] }
 memmap2 = "0.7"
 pulldown-cmark = "0.9"

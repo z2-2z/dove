@@ -2,53 +2,29 @@ use std::path::{Path, PathBuf};
 use std::iter::Iterator;
 use std::fs::{read_dir, ReadDir};
 use std::ffi::OsStr;
+use anyhow::Result;
+use std::collections::VecDeque;
 
 pub const POST_EXTENSION: &str = "md";
 
 pub struct PostIterator {
-    dir_stack: Vec<PathBuf>,
-    next_item: Option<PathBuf>,
-    current_iter: Option<ReadDir>,
+    dir_queue: VecDeque<ReadDir>,
 }
 
 impl PostIterator {
-    pub fn read<P: AsRef<Path>>(path: P) -> Self {
+    pub fn new<P: AsRef<Path>>(path: P) -> Result<Self> {
         let path = path.as_ref();
-        let mut current_iter = None;
-        let mut next_item = None;
         
-        if path.is_dir() {
-            current_iter = Some(read_dir(path).unwrap());
-        } else {
-            next_item = Some(path.to_owned());
+        if !path.is_dir() {
+            anyhow::bail!("Expected a directory: {}", path.display());
         }
         
-        let mut ret = Self {
-            dir_stack: Vec::with_capacity(64),
-            next_item,
-            current_iter,
-        };
-        ret.find_next_item();
-        ret
-    }
-    
-    fn find_next_item(&mut self) {
-        while let Some(current_iter) = &mut self.current_iter {
-            /* Find next item in current iterator */
-            for item in current_iter {
-                let item = item.unwrap().path();
-                
-                if item.is_dir() {
-                    self.dir_stack.push(item);
-                } else if item.extension() == Some(OsStr::new(POST_EXTENSION)) {
-                    self.next_item = Some(item);
-                    return;
-                } 
-            }
-            
-            /* Create a new iterator */
-            self.current_iter = self.dir_stack.pop().map(|x| read_dir(x).unwrap());
-        }
+        let mut dir_queue = VecDeque::with_capacity(512);
+        dir_queue.push_back(read_dir(path)?);
+        
+        Ok(Self {
+            dir_queue,
+        })
     }
 }
 
@@ -56,9 +32,26 @@ impl Iterator for PostIterator {
     type Item = PathBuf;
     
     fn next(&mut self) -> Option<Self::Item> {
-        let ret = self.next_item.take();
-        self.find_next_item();
-        ret
+        'restart:
+        loop {
+            if let Some(dir) = self.dir_queue.front_mut() {
+                for entry in dir {
+                    let path = entry.unwrap().path();
+                    
+                    if path.is_dir() {
+                        let new_iter = read_dir(&path).unwrap();
+                        self.dir_queue.push_back(new_iter);
+                        continue 'restart;
+                    } else if path.extension() == Some(OsStr::new(POST_EXTENSION)) {
+                        return Some(path);
+                    }
+                }
+                
+                self.dir_queue.pop_front();
+            } else {
+                return None;
+            }
+        }
     }
 }
 
@@ -68,11 +61,7 @@ mod tests {
     
     #[test]
     fn test_post_iterator() {
-        for post in PostIterator::read("test-data/postiter") {
-            println!("{}", post.display());
-        }
-        
-        for post in PostIterator::read("test-data/postiter/root.md") {
+        for post in  PostIterator::new("test-data/postiter").unwrap() {
             println!("{}", post.display());
         }
     }

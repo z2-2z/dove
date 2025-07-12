@@ -1,2 +1,7 @@
-table of contents ?
 live mode
+
+New version:
+- explicit argument path to build-cache
+- build cache with posts + dependencies
+- check headless post mtime against archive mtime
+- convert images to webp
