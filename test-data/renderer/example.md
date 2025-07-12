@@ -1,4 +1,4 @@
-date: 01-01-3054
+date: 01.01.3054
 categories: bli, bla, blubb, very-long-cat-name
 startpage: true
 
@@ -55,12 +55,16 @@ text with
 hardbreak or     
 other hardbreak
 
+<blank-line/>
+
 download file: [file.txt](./file.txt)  
 not a file: [?](http://duckduckgo.com)
+
+<blank-line>
 
 I am citing <cite>id1, id2</cite>.
 
 ---
-<reference id="id1">some __markdown__: probably a [link](somewhere)</reference>
-<reference id="id2">or just some text</reference>
+<ref id="id1">some __markdown__: probably a [link](somewhere)</ref>
+<ref id="id2">or just some text</ref>
 

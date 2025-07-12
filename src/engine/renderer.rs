@@ -54,7 +54,7 @@ impl Renderer {
         }
     }
     
-    pub fn render(&mut self, content: &[u8], basedir: &Path) -> Result<()> {
+    pub fn render(&mut self, content: &[u8], basedir: &Path) -> Result<String> {
         let content = std::str::from_utf8(content)?;
         let mut output = String::with_capacity(128 * 1024);
         let mut options = md::Options::empty();
@@ -67,7 +67,7 @@ impl Renderer {
             self.dispatch(event, &mut parser, &mut output, basedir)?;
         }
         
-        Ok(())
+        Ok(output)
     }
     
     fn dispatch(&mut self, event: md::Event, parser: &mut md::Parser, output: &mut String, basedir: &Path) -> Result<()> {
@@ -214,7 +214,14 @@ impl Renderer {
                     self.figure_cursor += 1;
                     self.description.clear();
                 },
-                md::Tag::HtmlBlock => anyhow::bail!("HTML blocks not supported, remove whitespace after HTML tag"),
+                md::Tag::HtmlBlock => {
+                    let data = self.collect(parser, basedir)?;
+                    let tag = parser::trim_whitespaces(data.as_bytes());
+                    
+                    if !tag.starts_with(b"<br ") {
+                        anyhow::bail!("Invalid HTML block: {data}");
+                    }
+                },
                 _ => unreachable!("{:?}", tag),
             },
             md::Event::Html(tag) => {
@@ -260,6 +267,37 @@ impl Renderer {
                 match tag.as_ref().trim() {
                     "<blank-line>" | "<blank-line/>" => {
                         append_template(output, BlankLine {})?;
+                    },
+                    "<table-title>" => {
+                        let data = self.collect_html(parser, "</table-title>", basedir)?;
+                        self.description = data;
+                    },
+                    "<figure-title>" => {
+                        let data = self.collect_html(parser, "</figure-title>", basedir)?;
+                        self.description = data;
+                    },
+                    "<cite>" => {
+                        let data = self.collect_html(parser, "</cite>", basedir)?;
+                        let mut ids = Vec::new();
+                        
+                        for cite_id in data.split(',') {
+                            for cite_id in cite_id.split(' ') {
+                                if !cite_id.is_empty() {
+                                    if let Some(id) = self.references.get(cite_id) {
+                                        ids.push(*id);
+                                    } else {
+                                        let id = self.reference_cursor;
+                                        self.reference_cursor += 1;
+                                        self.references.insert(cite_id.to_string(), id);
+                                        ids.push(id);
+                                    }
+                                }
+                            }
+                        }
+                        
+                        append_template(output, Citation {
+                            ids,
+                        })?;
                     },
                     tag => anyhow::bail!("Invalid inline html: {}", tag),
                 }
@@ -309,10 +347,12 @@ impl Renderer {
         let mut temp = String::with_capacity(4 * 1024);
         
         while let Some(event) = parser.next() {
-            if let md::Event::Html(tag) = &event {
-                if tag.as_ref() == end_tag {
+            match &event {
+                md::Event::InlineHtml(tag) |
+                md::Event::Html(tag) => if tag.as_ref() == end_tag {
                     break;
                 }
+                _ => {},
             }
             
             self.dispatch(event, parser, &mut temp, basedir)?;
@@ -324,7 +364,8 @@ impl Renderer {
     fn parse_reference_tag(&self, parser: &mut md::Parser) -> Result<usize> {
         let event = parser.next();
         let tag = match &event {
-            Some(md::Event::Html(tag)) => tag.as_ref(),
+            Some(md::Event::Html(tag)) |
+            Some(md::Event::InlineHtml(tag)) => tag.as_ref(),
             _ => anyhow::bail!("Only <ref> tags are allowed in the bibliography"),
         };
         
@@ -398,5 +439,18 @@ impl Renderer {
         })?;
         
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    #[test]
+    fn render_example() {
+        let post = crate::posts::Post::new("test-data/renderer/example.md").unwrap();
+        let mut renderer = Renderer::new();
+        let output = renderer.render(post.content(), Path::new("test-data/renderer/")).unwrap();
+        println!("{output}");
     }
 }
