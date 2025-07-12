@@ -3,13 +3,15 @@ use std::path::{PathBuf, Path};
 use serde::{Deserialize, Serialize};
 use anyhow::Result;
 
+use crate::posts::PostMetadata;
+
 #[derive(Serialize, Deserialize)]
-pub struct CacheEntry {
+pub struct Dependency {
     input: PathBuf,
     output: PathBuf,
 }
 
-impl CacheEntry {
+impl Dependency {
     pub fn input(&self) -> &Path {
         &self.input
     }
@@ -19,9 +21,30 @@ impl CacheEntry {
     }
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct CacheEntry {
+    dependencies: Vec<Dependency>,
+    metadata: PostMetadata,
+    url: String,
+}
+
+impl CacheEntry {
+    pub fn dependencies(&self) -> &[Dependency] {
+        &self.dependencies
+    }
+    
+    pub fn metadata(&self) -> &PostMetadata {
+        &self.metadata
+    }
+    
+    pub fn url(&self) -> &str {
+        &self.url
+    }
+}
+
 #[derive(Default, Serialize, Deserialize)]
 pub struct PostCache {
-    resources: HashMap<PathBuf, Vec<CacheEntry>>,
+    resources: HashMap<PathBuf, CacheEntry>,
 }
 
 impl PostCache {
@@ -42,8 +65,8 @@ impl PostCache {
         self.resources.clear();
     }
     
-    pub fn get(&mut self, path: &PathBuf) -> Option<&[CacheEntry]> {
-        self.resources.get(path).map(|v| &**v)
+    pub fn get(&mut self, path: &PathBuf) -> Option<&CacheEntry> {
+        self.resources.get(path)
     }
     
     //TODO: insert

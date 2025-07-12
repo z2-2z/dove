@@ -1,8 +1,10 @@
 use memmap2::Mmap;
 use std::path::{Path, PathBuf};
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
 
-#[derive(Default, Debug)]
+
+#[derive(Default, Debug, Serialize, Deserialize)]
 pub struct PostDate {
     year: u16,
     month: u8,
@@ -41,7 +43,7 @@ impl PostDate {
     }
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Serialize, Deserialize)]
 pub struct PostMetadata {
     date: PostDate,
     categories: Vec<String>,
@@ -288,7 +290,7 @@ impl Parser {
     
     fn parse_categories(&mut self, value: &[u8]) -> Result<(), String> {
         const SEPARATOR: u8 = b',';
-        let charsets = [b'a'..=b'z', b'A'..=b'Z', b'0'..=b'9', b'-'..=b'-'];
+        let charsets = [b'a'..=b'z', b'0'..=b'9', b'-'..=b'-'];
         
         let (mut cat, mut rest) = split_once(value, SEPARATOR);
         
