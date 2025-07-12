@@ -2,7 +2,8 @@
     <table>{{ content|escape("none") }}</table>
     <p class="table-description">
         <a href="#table-{{ number }}">
-            <span class="slightly-bold">Table {{ number }}{% if description.is_empty() %}</span>{% else %}:</span> {{ description|escape("none") }} {% endif %}
+            <span class="slightly-bold">Table {{ number }}{% if description.is_empty() %}</span>{% else %}: </span> {% endif %}
         </a>
+        {{ description|escape("none") }}
     </p>
 </div>

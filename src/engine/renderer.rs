@@ -76,9 +76,11 @@ impl Renderer {
                 md::Tag::Paragraph => {
                     self.p_level += 1;
                     let data = self.collect(parser, basedir)?;
-                    append_template(output, Paragraph {
-                        content: data,
-                    })?;
+                    if !data.is_empty() {
+                        append_template(output, Paragraph {
+                            content: data,
+                        })?;
+                    }
                     self.p_level -= 1;
                 },
                 md::Tag::Heading { level, .. } => {
@@ -216,11 +218,7 @@ impl Renderer {
                 },
                 md::Tag::HtmlBlock => {
                     let data = self.collect(parser, basedir)?;
-                    let tag = parser::trim_whitespaces(data.as_bytes());
-                    
-                    if !tag.starts_with(b"<br ") {
-                        anyhow::bail!("Invalid HTML block: {data}");
-                    }
+                    output.push_str(&data);
                 },
                 _ => unreachable!("{:?}", tag),
             },
