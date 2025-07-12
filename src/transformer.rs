@@ -95,11 +95,13 @@ pub fn transform_buffer<P: AsRef<Path>>(buffer: &mut [u8], outfile: P, overwrite
         };
         let webp_data = encoder.encode(85.0);
         write_buffer(&outfile, &webp_data)?;
+        
     } else if is_css(&outfile) {
         let outfile = transform_css_filename(outfile);
         let str = std::str::from_utf8(buffer)?;
         let minified = minify_css::Minifier::default().minify(str, minify_css::Level::One).unwrap();
         write_buffer(&outfile, minified.as_bytes())?;
+        
     } else if is_js(&outfile) {
         let outfile = transform_js_filename(outfile);
         let session = minify_js::Session::new();
@@ -108,6 +110,7 @@ pub fn transform_buffer<P: AsRef<Path>>(buffer: &mut [u8], outfile: P, overwrite
             anyhow::bail!("Minifying js file failed");
         }
         write_buffer(&outfile, &out)?;
+        
     } else if is_html(&outfile) {
         let cfg = minify_html::Cfg {
             minify_js: true,
@@ -115,6 +118,7 @@ pub fn transform_buffer<P: AsRef<Path>>(buffer: &mut [u8], outfile: P, overwrite
         };
         let new_len = minify_html::in_place(buffer, &cfg)?;
         write_buffer(outfile.as_ref(), &buffer[..new_len])?;
+        
     } else {
         write_buffer(outfile.as_ref(), buffer)?;
     }

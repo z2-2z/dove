@@ -33,7 +33,7 @@ fn main() -> Result<()> {
                 let mut header = renderer.render_header(&post)?.into_bytes();
                 let mut footer = renderer.render_footer()?.into_bytes();
                 
-                // Check languages
+                /* Check languages  */
                 for lang in renderer.languages_used() {
                     let path = format!("STATIC_FOLDER/js/hljs/{lang}.min.js");
                     let path = Path::new(&path);
@@ -43,7 +43,7 @@ fn main() -> Result<()> {
                     }
                 }
                 
-                // Render page
+                /* Render page */
                 let output_file = format!("OUTPUT/{filename}");
                 output_basedir = PathBuf::from(&output_file);
                 output_basedir.pop();
@@ -52,7 +52,7 @@ fn main() -> Result<()> {
                 transformer::transform_buffer(&mut body, &output_file, false)?;
                 transformer::transform_buffer(&mut footer, &output_file, false)?;
                 
-                // Copy file mentions and hljs languages
+                /* Copy file mentions */
                 for path in renderer.file_mentions() {
                     transformer::transform_file(
                         input_basedir.join(path),
