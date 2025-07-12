@@ -1,8 +1,9 @@
 use memmap2::Mmap;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
+use crate::parser::*;
 
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct PostDate {
@@ -67,78 +68,6 @@ impl PostMetadata {
     pub fn title(&self) -> &str {
         &self.title
     }
-}
-
-fn trim_whitespaces(buf: &[u8]) -> &[u8] {
-    let mut start = 0;
-    
-    while let Some(c) = buf.get(start) {
-        if *c == b' ' {
-            start += 1;
-        } else {
-            break;
-        }
-    }
-    
-    if start >= buf.len() {
-        return &[];
-    }
-    
-    let mut end = buf.len() - 1;
-    
-    while let Some(c) = buf.get(end) {
-        if *c == b' ' {
-            end -= 1;
-        } else {
-            break;
-        }
-    }
-    
-    end += 1;
-    
-    &buf[start..end]
-}
-
-fn split_once(buf: &[u8], delim: u8) -> (&[u8], &[u8]) {
-    let mut cursor = 0;
-    
-    while let Some(c) = buf.get(cursor) {
-        if *c == delim {
-            let start = cursor + 1;
-            
-            if start >= buf.len() {
-                return (&buf[..cursor], &[]);
-            } else {
-                return (&buf[..cursor], &buf[start..]);
-            }
-            
-        } else {
-            cursor += 1;
-        }
-    }
-    
-    (buf, &[])
-}
-
-#[inline]
-fn convert_number(buf: &[u8]) -> usize {
-    let mut result = 0;
-    for c in buf.iter() {
-        result *= 10;
-        result += (*c - b'0') as usize;
-    }
-    result
-}
-
-#[inline]
-fn is_numerical(buf: &[u8]) -> bool {
-    for c in buf {
-        if !c.is_ascii_digit() {
-            return false;
-        }
-    }
-    
-    true
 }
 
 #[derive(Default)]
@@ -358,8 +287,8 @@ fn encode_filename(id: &str) -> String {
 pub struct Post {
     metadata: PostMetadata,
     url: String,
-    filename: Option<PathBuf>,
-    content_offset: Option<usize>,
+    filename: Option<String>,
+    content_offset: usize,
     file: Mmap,
 }
 
@@ -371,12 +300,10 @@ impl Post {
         
         let filename;
         let url;
-        let content_offset;
         
         if let Some(mirror) = parser.mirror {
             url = mirror;
             filename = None;
-            content_offset = None;
         } else {
             let encoded = format!(
                 "{:04}/{}/{:02}/{}",
@@ -385,16 +312,15 @@ impl Post {
                 parser.metadata.date.day,
                 encode_filename(&parser.metadata.title)
             );
-            filename = Some(PathBuf::from(&encoded));
             url = format!("/{encoded}");
-            content_offset = Some(parser.content_offset);
+            filename = Some(encoded);
         }
         
         Ok(Self {
             metadata: parser.metadata,
             url,
             filename,
-            content_offset,
+            content_offset: parser.content_offset,
             file,
         })
     }
@@ -407,12 +333,12 @@ impl Post {
         &self.url
     }
     
-    pub fn filename(&self) -> Option<&Path> {
-        self.filename.as_ref().map(|v| &**v)
+    pub fn filename(&self) -> Option<&str> {
+        self.filename.as_deref()
     }
     
-    pub fn content(&self) -> Option<&[u8]> {
-        self.content_offset.map(|o| &self.file[o..])
+    pub fn content(&self) -> &[u8] {
+        &self.file[self.content_offset..]
     }
 }
 

@@ -1,7 +1,10 @@
 use anyhow::Result;
 
+mod engine;
 mod posts;
 mod fs;
+mod transformer;
+mod parser;
 
 fn main() -> Result<()> {
     let mut cache = posts::PostCache::new("CACHE")?;
@@ -16,9 +19,23 @@ fn main() -> Result<()> {
         };
         
         if rerender {
+            let mut input_basedir = input_file.clone();
+            input_basedir.pop();
             let post = posts::Post::new(input_file)?;
+            let mut renderer = engine::Renderer::new();
+            let html_path;
             
-            
+            if let Some(filename) = post.filename() {
+                renderer.render(post.content(), &input_basedir)?;
+                
+                let output_file = format!("OUTPUT/{filename}");
+                
+                // minify
+                
+                html_path = output_file;
+            } else {
+                html_path = "OUTPUT/archive.html".to_string();
+            }
             
             // update cache entry
         }
