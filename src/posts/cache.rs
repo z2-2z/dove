@@ -3,7 +3,7 @@ use std::path::{PathBuf, Path};
 use serde::{Deserialize, Serialize};
 use anyhow::Result;
 
-use crate::posts::PostMetadata;
+use crate::{posts::{PostMetadata, Post}, engine::Renderer};
 
 #[derive(Serialize, Deserialize)]
 pub struct Dependency {
@@ -69,7 +69,32 @@ impl PostCache {
         self.resources.get(path)
     }
     
-    //TODO: insert
+    pub fn insert(&mut self, input_basedir: &Path, input_file: &Path, output_basedir: &Path, output_file: &Path, post: &Post, renderer: &Renderer) {
+        let mut dependencies = vec![
+            Dependency {
+                input: input_file.to_owned(),
+                output: output_file.to_owned(),
+            }
+        ];
+        
+        for path in renderer.file_mentions() {
+            let input = input_basedir.join(path);
+            let output = output_basedir.join(path);
+            
+            dependencies.push(Dependency {
+                input,
+                output,
+            });
+        }
+        
+        let entry = CacheEntry {
+            dependencies,
+            metadata: post.metadata().clone(),
+            url: post.url().to_owned(),
+        };
+        
+        self.resources.insert(input_file.to_owned(), entry);
+    }
     
     pub fn save<P: AsRef<Path>>(&self, path: P) -> Result<()> {
         let output = std::fs::File::create(path)?;

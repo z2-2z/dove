@@ -8,13 +8,13 @@ mod transformer;
 mod parser;
 
 fn main() -> Result<()> {
+    //TODO: change to postcard
     let mut cache = posts::PostCache::new("CACHE")?;
     let mut updated_posts = false;
     
     for input_file in posts::PostIterator::new("INPUT")? {
-        let rerender = if let Some(entries) = cache.get(&input_file) {
-            // if any input is newer than output in entries, rerender
-            todo!()
+        let rerender = if let Some(entry) = cache.get(&input_file) {
+            entry.dependencies().iter().any(|d| fs::is_newer(d.input(), d.output()))
         } else {
             true
         };
@@ -23,7 +23,7 @@ fn main() -> Result<()> {
             let mut input_basedir = input_file.clone();
             input_basedir.pop();
             let mut output_basedir;
-            let post = posts::Post::new(input_file)?;
+            let post = posts::Post::new(&input_file)?;
             let mut renderer = engine::Renderer::new();
             let html_path;
             
@@ -63,9 +63,17 @@ fn main() -> Result<()> {
                 html_path = output_file;
             } else {
                 html_path = "OUTPUT/archive.html".to_string();
+                output_basedir = PathBuf::from("OUTPUT");
             }
             
-            // update cache entry
+            cache.insert(
+                &input_basedir,
+                &input_file,
+                &output_basedir,
+                Path::new(&html_path),
+                &post,
+                &renderer,
+            );
         }
         
         updated_posts |= rerender;
@@ -74,7 +82,7 @@ fn main() -> Result<()> {
     if updated_posts {
         // regenerate index, archive, feed completely from cache
         
-        // save cache
+        cache.save("CACHE")?;
     }
     
     // conditional recursive copy of static folder: only copy static source files that are newer

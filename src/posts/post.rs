@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::parser::*;
 
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct PostDate {
     year: u16,
     month: u8,
@@ -44,7 +44,7 @@ impl PostDate {
     }
 }
 
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct PostMetadata {
     date: PostDate,
     categories: Vec<String>,
