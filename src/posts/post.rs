@@ -2,7 +2,7 @@ use memmap2::Mmap;
 use std::path::{Path, PathBuf};
 use anyhow::Result;
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct PostDate {
     year: u16,
     month: u8,
@@ -10,6 +10,14 @@ pub struct PostDate {
 }
 
 impl PostDate {
+    pub fn day(&self) -> u8 {
+        self.day
+    }
+    
+    pub fn month(&self) -> u8 {
+        self.month
+    }
+    
     pub fn month_name(&self) -> &'static str {
         match self.month {
             1 => "jan",
@@ -27,14 +35,36 @@ impl PostDate {
             _ => unreachable!(),
         }
     }
+    
+    pub fn year(&self) -> u16 {
+        self.year
+    }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct PostMetadata {
     date: PostDate,
     categories: Vec<String>,
     startpage: bool,
     title: String,
+}
+
+impl PostMetadata {
+    pub fn date(&self) -> &PostDate {
+        &self.date
+    }
+    
+    pub fn categories(&self) -> &[String] {
+        &self.categories
+    }
+    
+    pub fn startpage(&self) -> bool {
+        self.startpage
+    }
+    
+    pub fn title(&self) -> &str {
+        &self.title
+    }
 }
 
 fn trim_whitespaces(buf: &[u8]) -> &[u8] {
@@ -242,6 +272,17 @@ impl Parser {
         self.metadata.date.day = convert_number(day) as u8;
         self.metadata.date.month = convert_number(month) as u8;
         self.metadata.date.year = convert_number(year) as u16;
+        
+        if !(1..=31).contains(&self.metadata.date.day) {
+            return Err("Invalid day".to_string());
+        }
+        if !(1..=12).contains(&self.metadata.date.month) {
+            return Err("Invalid month".to_string());
+        }
+        if !(0..=9999).contains(&self.metadata.date.year) {
+            return Err("Invalid year".to_string());
+        }
+        
         Ok(())
     }
     
@@ -311,6 +352,7 @@ fn encode_filename(id: &str) -> String {
         .collect()
 }
 
+#[derive(Debug)]
 pub struct Post {
     metadata: PostMetadata,
     url: String,
@@ -350,5 +392,39 @@ impl Post {
             content_offset: parser.content_offset,
             file,
         })
+    }
+    
+    pub fn meta(&self) -> &PostMetadata {
+        &self.metadata
+    }
+    
+    pub fn url(&self) -> &str {
+        &self.url
+    }
+    
+    pub fn filename(&self) -> &Path {
+        self.filename.as_ref().expect("Application tried to access a posts content that has none")
+    }
+    
+    pub fn content(&self) -> &[u8] {
+        &self.file[self.content_offset..]
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    #[test]
+    fn print_mirror() {
+        let post = Post::new("test-data/postmeta/mirror.md").unwrap();
+        println!("{post:#?}");
+    }
+    
+    #[test]
+    fn print_title() {
+        let post = Post::new("test-data/postmeta/title.md").unwrap();
+        println!("{post:#?}");
+        println!("{:?}", post.content());
     }
 }
