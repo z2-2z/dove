@@ -5,7 +5,7 @@ use std::ffi::OsStr;
 use anyhow::Result;
 use std::collections::VecDeque;
 
-pub const POST_EXTENSION: &str = "md";
+const POST_EXTENSION: &str = "md";
 
 pub struct PostIterator {
     dir_queue: VecDeque<ReadDir>,
