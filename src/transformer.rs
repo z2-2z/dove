@@ -1,8 +1,10 @@
 use std::path::{Path, PathBuf};
 use std::fs::File;
-use std::io::Write;
+use std::io::{Write, Cursor};
 use anyhow::Result;
 use minify_html_onepass as minify_html;
+use image::ImageReader;
+use css_minify::optimizations as minify_css;
 
 pub fn is_image<P: AsRef<Path>>(path: P) -> bool {
     matches!(
@@ -18,17 +20,25 @@ pub fn is_image<P: AsRef<Path>>(path: P) -> bool {
 }
 
 pub fn is_css<P: AsRef<Path>>(path: P) -> bool {
-    matches!(
-        path.as_ref().extension().map(|x| x.as_encoded_bytes()),
-        Some(b"css") | Some(b"CSS")
-    )
+    let path = path.as_ref();
+    let path = path.file_name().unwrap().to_str().unwrap();
+    
+    if path.ends_with(".min.css") {
+        return false;
+    }
+    
+    path.ends_with(".css")
 }
 
 pub fn is_js<P: AsRef<Path>>(path: P) -> bool {
-    matches!(
-        path.as_ref().extension().map(|x| x.as_encoded_bytes()),
-        Some(b"js") | Some(b"JS")
-    )
+    let path = path.as_ref();
+    let path = path.file_name().unwrap().to_str().unwrap();
+    
+    if path.ends_with(".min.js") {
+        return false;
+    }
+    
+    path.ends_with(".js")
 }
 
 pub fn is_html<P: AsRef<Path>>(path: P) -> bool {
@@ -65,37 +75,48 @@ pub fn transform_file<P1: AsRef<Path>, P2: AsRef<Path>>(infile: P1, outfile: P2)
 }
 
 pub fn transform_buffer<P: AsRef<Path>>(buffer: &mut [u8], outfile: P, overwrite: bool) -> Result<()> {
-    let open = |outfile: P| -> Result<File> {
-        let ret = if overwrite {
+    let write_buffer = |outfile: &Path, buffer: &[u8]| -> Result<()> {
+        let mut file = if overwrite {
             File::create(outfile)?
         } else {
             File::options().append(true).create(true).open(outfile)?
         };
-        Ok(ret)
+        file.write_all(buffer)?;
+        file.flush()?;
+        Ok(())
     };
     
     if is_image(&outfile) {
         let outfile = transform_image_filename(outfile);
-        todo!()
+        let image = ImageReader::new(Cursor::new(buffer)).with_guessed_format()?.decode()?;
+        let encoder = match webp::Encoder::from_image(&image) {
+            Ok(e) => e,
+            Err(msg) => anyhow::bail!("{msg}"),
+        };
+        let webp_data = encoder.encode(85.0);
+        write_buffer(&outfile, &webp_data)?;
     } else if is_css(&outfile) {
         let outfile = transform_css_filename(outfile);
-        todo!()
+        let str = std::str::from_utf8(buffer)?;
+        let minified = minify_css::Minifier::default().minify(str, minify_css::Level::One).unwrap();
+        write_buffer(&outfile, minified.as_bytes())?;
     } else if is_js(&outfile) {
         let outfile = transform_js_filename(outfile);
-        todo!()
+        let session = minify_js::Session::new();
+        let mut out = Vec::new();
+        if minify_js::minify(&session, minify_js::TopLevelMode::Global, buffer, &mut out).is_err() {
+            anyhow::bail!("Minifying js file failed");
+        }
+        write_buffer(&outfile, &out)?;
     } else if is_html(&outfile) {
         let cfg = minify_html::Cfg {
             minify_js: true,
             minify_css: true,
         };
         let new_len = minify_html::in_place(buffer, &cfg)?;
-        let mut file = open(outfile)?;
-        file.write_all(&buffer[..new_len])?;
-        file.flush()?;
+        write_buffer(outfile.as_ref(), &buffer[..new_len])?;
     } else {
-        let mut file = open(outfile)?;
-        file.write_all(buffer)?;
-        file.flush()?;
+        write_buffer(outfile.as_ref(), buffer)?;
     }
     
     Ok(())
