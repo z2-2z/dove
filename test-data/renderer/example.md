@@ -49,7 +49,7 @@ And this is a `tag`.
 _emphasis_ and __bold__ and ~~strikethrough~~ and [a link](url).
 
 <figure-title>Image description using _markdown_ ~~or else~~</figure-title>
-![](./test.png)
+![](./mini.jpg)
 
 ![](http://example.com/img)
 

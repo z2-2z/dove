@@ -3,7 +3,7 @@ use std::path::{PathBuf, Path};
 use serde::{Deserialize, Serialize};
 use anyhow::Result;
 
-use crate::{posts::{PostMetadata, Post}, engine::Renderer};
+use crate::{posts::{PostMetadata, Post}, engine::Renderer, transformer};
 
 #[derive(Serialize, Deserialize)]
 pub struct Dependency {
@@ -79,7 +79,7 @@ impl PostCache {
         
         for path in renderer.file_mentions() {
             let input = input_basedir.join(path);
-            let output = output_basedir.join(path);
+            let output = transformer::transform_filename(output_basedir.join(path));
             
             dependencies.push(Dependency {
                 input,

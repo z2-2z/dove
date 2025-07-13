@@ -100,7 +100,9 @@ fn render(input_dir: String, output_dir: String, cache_file: String, force: bool
                 let output_file = format!("{output_dir}/{filename}");
                 output_basedir = PathBuf::from(&output_file);
                 output_basedir.pop();
-                std::fs::create_dir_all(&output_basedir)?;
+                if !output_basedir.exists() {
+                    std::fs::create_dir_all(&output_basedir)?;
+                }
                 
                 header.reserve(body.len() + footer.len());
                 header.append(&mut body);
