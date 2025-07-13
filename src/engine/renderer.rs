@@ -532,10 +532,14 @@ pub fn render_feed(entries: &[&CacheEntry]) -> Result<String> {
     
     for entry in entries {
         let published = atom_timestamp(entry.metadata().date());
-        let url = entry.url();
+        let url = if entry.url().starts_with('/') {
+            format!("https://z2-2z.github.io{}", entry.url())
+        } else {
+            entry.url().to_string()
+        };
         let entry = AtomEntry {
             title: entry.metadata().title(),
-            url: url.to_string(),
+            url,
             published,
             categories: entry.metadata().categories(),
         };

@@ -312,7 +312,7 @@ impl Post {
                 parser.metadata.date.day,
                 encode_filename(&parser.metadata.title)
             );
-            url = format!("https://z2-2z.github.io/{encoded}");
+            url = format!("/{encoded}");
             filename = Some(encoded);
         }
         
