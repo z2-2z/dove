@@ -1,6 +1,5 @@
 use std::path::{Path, PathBuf};
-use std::fs::File;
-use std::io::{Write, Cursor};
+use std::io::Cursor;
 use anyhow::Result;
 use minify_html_onepass as minify_html;
 use image::ImageReader;
@@ -86,14 +85,7 @@ pub fn transform_file<P1: AsRef<Path>, P2: AsRef<Path>>(infile: P1, outfile: P2)
     transform_buffer(&mut buffer, outfile)
 }
 
-pub fn transform_buffer<P: AsRef<Path>>(buffer: &mut [u8], outfile: P) -> Result<()> {
-    let write_buffer = |outfile: &Path, buffer: &[u8]| -> Result<()> {
-        let mut file = File::create(outfile)?;
-        file.write_all(buffer)?;
-        file.flush()?;
-        Ok(())
-    };
-    
+pub fn transform_buffer<P: AsRef<Path>>(buffer: &mut [u8], outfile: P) -> Result<()> {    
     if is_image(&outfile) {
         let outfile = transform_image_filename(outfile);
         let image = ImageReader::new(Cursor::new(buffer)).with_guessed_format()?.decode()?;
@@ -102,13 +94,13 @@ pub fn transform_buffer<P: AsRef<Path>>(buffer: &mut [u8], outfile: P) -> Result
             Err(msg) => anyhow::bail!("{msg}"),
         };
         let webp_data = encoder.encode(85.0);
-        write_buffer(&outfile, &webp_data)?;
+        std::fs::write(&outfile, &*webp_data)?;
         
     } else if is_css(&outfile) {
         let outfile = transform_css_filename(outfile);
         let str = std::str::from_utf8(buffer)?;
         let minified = minify_css::Minifier::default().minify(str, minify_css::Level::One).unwrap();
-        write_buffer(&outfile, minified.as_bytes())?;
+        std::fs::write(&outfile, minified.as_bytes())?;
         
     } else if is_js(&outfile) {
         let outfile = transform_js_filename(outfile);
@@ -117,7 +109,7 @@ pub fn transform_buffer<P: AsRef<Path>>(buffer: &mut [u8], outfile: P) -> Result
         if minify_js::minify(&session, minify_js::TopLevelMode::Global, buffer, &mut out).is_err() {
             anyhow::bail!("Minifying js file failed");
         }
-        write_buffer(&outfile, &out)?;
+        std::fs::write(&outfile, &out)?;
         
     } else if is_html(&outfile) {
         let cfg = minify_html::Cfg {
@@ -125,10 +117,10 @@ pub fn transform_buffer<P: AsRef<Path>>(buffer: &mut [u8], outfile: P) -> Result
             minify_css: true,
         };
         let new_len = minify_html::in_place(buffer, &cfg)?;
-        write_buffer(outfile.as_ref(), &buffer[..new_len])?;
+        std::fs::write(outfile.as_ref(), &buffer[..new_len])?;
         
     } else {
-        write_buffer(outfile.as_ref(), buffer)?;
+        std::fs::write(outfile.as_ref(), buffer)?;
     }
     
     Ok(())
