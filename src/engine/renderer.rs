@@ -4,7 +4,7 @@ use anyhow::Result;
 use pulldown_cmark as md;
 use askama::Template;
 
-use crate::{transformer, engine::templates::*, parser, posts::Post};
+use crate::{transformer, engine::templates::*, parser, posts::{Post, CacheEntry, PostDate}};
 
 #[inline]
 fn append_template<T: Template>(output: &mut String, template: T) -> Result<()> {
@@ -478,6 +478,70 @@ impl Renderer {
         append_template(&mut output, PostFooter {})?;
         Ok(output)
     }
+}
+
+pub fn render_index(entries: &[&CacheEntry]) -> Result<String> {
+    let mut output = String::with_capacity(4096);
+    append_template(&mut output, Index {
+        entries,
+    })?;
+    Ok(output)
+}
+
+pub fn render_archive(entries: &[&CacheEntry]) -> Result<String> {
+    let mut output = String::with_capacity(4096);
+    append_template(&mut output, Archive {
+        entries,
+    })?;
+    Ok(output)
+}
+
+fn max_post_date(entries: &[&CacheEntry]) -> PostDate {
+    let mut ret = PostDate::default();
+    
+    for post in entries {
+        if post.metadata().date() > &ret {
+            ret.clone_from(post.metadata().date());
+        }
+    }
+    
+    ret
+}
+
+fn atom_timestamp(date: &PostDate) -> String {
+    format!("{:04}-{:02}-{:02}T00:00:00Z", date.year(), date.month(), date.day())
+}
+
+pub fn render_feed(entries: &[&CacheEntry]) -> Result<String> {
+    let mut output = String::with_capacity(4096);
+    
+    let latest_date = max_post_date(entries);
+    
+    if latest_date.year() == 0 {
+        return Ok(output);
+    }
+    
+    let updated = atom_timestamp(&latest_date);
+    let mut elements = Vec::new();
+    
+    for entry in entries {
+        let published = atom_timestamp(entry.metadata().date());
+        let url = entry.url();
+        let entry = AtomEntry {
+            title: entry.metadata().title(),
+            url: url.to_string(),
+            published,
+            categories: entry.metadata().categories(),
+        };
+        elements.push(entry);
+    }
+    
+    append_template(&mut output, AtomFeed {
+        updated,
+        entries: elements,
+    })?;
+    
+    Ok(output)
 }
 
 #[cfg(test)]

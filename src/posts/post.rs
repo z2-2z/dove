@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::parser::*;
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Eq, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct PostDate {
     year: u16,
     month: u8,
@@ -312,7 +312,7 @@ impl Post {
                 parser.metadata.date.day,
                 encode_filename(&parser.metadata.title)
             );
-            url = format!("/{encoded}");
+            url = format!("https://z2-2z.github.io/{encoded}");
             filename = Some(encoded);
         }
         

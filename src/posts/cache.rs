@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, hash_map::Values};
 use std::path::{PathBuf, Path};
 use serde::{Deserialize, Serialize};
 use anyhow::Result;
@@ -100,5 +100,9 @@ impl PostCache {
         let output = std::fs::File::create(path)?;
         serde_json::to_writer(output, self)?;
         Ok(())
+    }
+    
+    pub fn resources(&self) -> Values<PathBuf, CacheEntry> {
+        self.resources.values()
     }
 }

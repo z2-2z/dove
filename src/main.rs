@@ -80,7 +80,20 @@ fn main() -> Result<()> {
     }
     
     if updated_posts {
-        // regenerate index, archive, feed completely from cache
+        let mut entries: Vec<&posts::CacheEntry> = cache.resources().collect();
+        entries.sort_by(|a, b| b.metadata().date().cmp(a.metadata().date()));
+        
+        /* Render index */
+        let mut output = engine::render_index(&entries)?.into_bytes();
+        transformer::transform_buffer(&mut output, format!("OUTPUT/index.html"), true)?;
+        
+        /* Render archive */
+        let mut output = engine::render_archive(&entries)?.into_bytes();
+        transformer::transform_buffer(&mut output, format!("OUTPUT/archive.html"), true)?;
+        
+        /* Render feed */
+        let mut output = engine::render_feed(&entries)?.into_bytes();
+        transformer::transform_buffer(&mut output, format!("OUTPUT/atom.xml"), true)?;
         
         cache.save("CACHE")?;
     }

@@ -1,4 +1,4 @@
-use crate::posts::Post;
+use crate::posts::CacheEntry;
 use std::collections::HashSet;
 use askama::Template;
 
@@ -170,7 +170,7 @@ pub struct Categories<'a> {
 #[derive(Template)]
 #[template(path = "index.html")]
 pub struct Index<'a> {
-    pub posts: &'a [Post],
+    pub entries: &'a [&'a CacheEntry],
 }
 
 #[derive(Template)]
@@ -180,5 +180,21 @@ pub struct Status404;
 #[derive(Template)]
 #[template(path = "archive.html")]
 pub struct Archive<'a> {
-    pub posts: &'a [Post],
+    pub entries: &'a [&'a CacheEntry],
+}
+
+#[derive(Template)]
+#[template(path = "feed/atom_entry.xml")]
+pub struct AtomEntry<'a> {
+    pub title: &'a str,
+    pub url: String,
+    pub published: String,
+    pub categories: &'a [String],
+}
+
+#[derive(Template)]
+#[template(path = "feed/atom.xml")]
+pub struct AtomFeed<'a> {
+    pub updated: String,
+    pub entries: Vec<AtomEntry<'a>>,
 }
