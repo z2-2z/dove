@@ -17,7 +17,7 @@ pulldown-cmark = { version = "0.13", default-features = false, features = ["simd
 askama = "0.14"
 minify-html-onepass = "0.16"
 css-minify = "0.5"
-minify-js = "0.6"
+minify-js = "0.5"
 mimalloc = "0.1"
 webp = "0.3"
 image = "0.25"

@@ -19,23 +19,31 @@ pub fn is_newer<P1: AsRef<Path>, P2: AsRef<Path>>(src: P1, dst: P2) -> bool {
     src.metadata().unwrap().modified().unwrap() > dst.metadata().unwrap().modified().unwrap()
 }
 
-pub fn copy_dir_recursive<P1: AsRef<Path>, P2: AsRef<Path>, P3: AsRef<Path>>(force: bool, current_dir: P1, root: P2, output: P3) -> Result<()> {
-    let output = output.as_ref();
-    let root = root.as_ref();
-    
+fn cpr_helper(force: bool, current_dir: &Path, root: &Path, output: &Path) -> Result<()> {
     for entry in read_dir(current_dir)? {
         let src_path = entry?.path();
         let dst_path = output.join(src_path.strip_prefix(root)?);
+        let trans_path = transformer::transform_filename(&dst_path);
         
         if src_path.is_dir() {
             if !dst_path.exists() {
                 create_dir(&dst_path)?;
             }
-            copy_dir_recursive(force, &src_path, root, output)?;
-        } else if force || is_newer(&src_path, &dst_path) {
+            cpr_helper(force, &src_path, root, output)?;
+        } else if force || is_newer(&src_path, &trans_path) {
             transformer::transform_file(src_path, dst_path)?;
         }
     }
     
     Ok(())
+}
+
+pub fn copy_dir_recursive<P1: AsRef<Path>, P2: AsRef<Path>>(force: bool, input: P1, output: P2) -> Result<()> {
+    let output = output.as_ref();
+    
+    if !output.exists() {
+        create_dir(output)?;
+    }
+    
+    cpr_helper(force, input.as_ref(), input.as_ref(), output)
 }

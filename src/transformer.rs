@@ -69,12 +69,26 @@ pub fn transform_image_filename<P: AsRef<Path>>(path: P) -> PathBuf {
     path
 }
 
+pub fn transform_filename<P: AsRef<Path>>(filename: P) -> PathBuf {
+    if is_image(&filename) {
+        transform_image_filename(filename)
+    } else if is_css(&filename) {
+        transform_css_filename(filename)
+    } else if is_js(&filename) {
+        transform_js_filename(filename)
+    } else {
+        filename.as_ref().to_owned()
+    }
+}
+
 pub fn transform_file<P1: AsRef<Path>, P2: AsRef<Path>>(infile: P1, outfile: P2) -> Result<()> {
     let mut buffer = std::fs::read(infile)?;
     transform_buffer(&mut buffer, outfile, true)
 }
 
 pub fn transform_buffer<P: AsRef<Path>>(buffer: &mut [u8], outfile: P, overwrite: bool) -> Result<()> {
+    println!("Transforming {}", outfile.as_ref().display());
+    
     let write_buffer = |outfile: &Path, buffer: &[u8]| -> Result<()> {
         let mut file = if overwrite {
             File::create(outfile)?

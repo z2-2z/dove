@@ -1,5 +1,6 @@
 use std::path::{PathBuf, Path};
 use anyhow::Result;
+use clap::Parser;
 
 mod engine;
 mod posts;
@@ -7,17 +8,64 @@ mod fs;
 mod transformer;
 mod parser;
 
-fn main() -> Result<()> {
-    let force = false;
+#[global_allocator]
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(clap::Subcommand)]
+enum Commands {
+    Render {
+        #[arg(short, long, required = true, value_name = "DIR")]
+        input: String,
+        
+        #[arg(short, long, required = true, value_name = "DIR")]
+        output: String,
+        
+        #[arg(short, long, required = true, value_name = "FILE")]
+        cache: String,
+        
+        #[arg(short, long)]
+        force: bool,
+        
+        #[arg(long, default_value_t = String::from("./static"))]
+        static_folder: String,
+    },
+    
+    New {
+        output: String,
+    },
+}
+
+fn render(input_dir: String, output_dir: String, cache_file: String, force: bool, static_folder: String) -> Result<()> {
+    /* Copy static files */
+    fs::copy_dir_recursive(
+        force,
+        &static_folder,
+        &output_dir,
+    )?;
+    
+    let out_404 = PathBuf::from(format!("{output_dir}/404.html"));
+    if force || !out_404.exists() {
+        let mut output = engine::render_404()?.into_bytes();
+        transformer::transform_buffer(&mut output, out_404, true)?;
+    }
+    
+    /* Read posts */
     //TODO: change to postcard
-    let mut cache = posts::PostCache::new("CACHE")?;
+    let mut cache = posts::PostCache::new(&cache_file)?;
     let mut updated_posts = false;
     
     if force {
         cache.clear();
     }
     
-    for input_file in posts::PostIterator::new("INPUT")? {
+    for input_file in posts::PostIterator::new(&input_dir)? {
         let rerender = if let Some(entry) = cache.get(&input_file) {
             entry.dependencies().iter().any(|d| fs::is_newer(d.input(), d.output()))
         } else {
@@ -40,7 +88,7 @@ fn main() -> Result<()> {
                 
                 /* Check languages  */
                 for lang in renderer.languages_used() {
-                    let path = format!("STATIC_FOLDER/js/hljs/{lang}.min.js");
+                    let path = format!("{static_folder}/js/hljs/{lang}.min.js");
                     let path = Path::new(&path);
                     
                     if !path.exists() {
@@ -49,7 +97,7 @@ fn main() -> Result<()> {
                 }
                 
                 /* Render page */
-                let output_file = format!("OUTPUT/{filename}");
+                let output_file = format!("{output_dir}/{filename}");
                 output_basedir = PathBuf::from(&output_file);
                 output_basedir.pop();
                 
@@ -67,8 +115,8 @@ fn main() -> Result<()> {
                 
                 html_path = output_file;
             } else {
-                html_path = "OUTPUT/archive.html".to_string();
-                output_basedir = PathBuf::from("OUTPUT");
+                html_path = format!("{output_dir}/archive.html");
+                output_basedir = PathBuf::from(&output_dir);
             }
             
             cache.insert(
@@ -90,32 +138,27 @@ fn main() -> Result<()> {
         
         /* Render index */
         let mut output = engine::render_index(&entries)?.into_bytes();
-        transformer::transform_buffer(&mut output, format!("OUTPUT/index.html"), true)?;
+        transformer::transform_buffer(&mut output, format!("{output_dir}/index.html"), true)?;
         
         /* Render archive */
         let mut output = engine::render_archive(&entries)?.into_bytes();
-        transformer::transform_buffer(&mut output, format!("OUTPUT/archive.html"), true)?;
+        transformer::transform_buffer(&mut output, format!("{output_dir}/archive.html"), true)?;
         
         /* Render feed */
         let mut output = engine::render_feed(&entries)?.into_bytes();
-        transformer::transform_buffer(&mut output, format!("OUTPUT/atom.xml"), true)?;
+        transformer::transform_buffer(&mut output, format!("{output_dir}/atom.xml"), true)?;
         
-        cache.save("CACHE")?;
+        cache.save(&cache_file)?;
     }
-    
-    /* Copy static files */
-    let out_404 = PathBuf::from(format!("OUTPUT/404.html"));
-    if force || !out_404.exists() {
-        let mut output = engine::render_404()?.into_bytes();
-        transformer::transform_buffer(&mut output, out_404, true)?;
-    }
-    
-    fs::copy_dir_recursive(
-        force,
-        "STATIC",
-        "STATIC",
-        "OUTPUT",
-    )?;
     
     Ok(())
+}
+
+fn main() {
+    let args = Args::parse();
+    
+    match args.command {
+        Commands::Render { input, output, cache, force, static_folder } => render(input, output, cache, force, static_folder).unwrap(),
+        Commands::New { output } => todo!(),
+    }
 }
