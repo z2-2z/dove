@@ -56,7 +56,7 @@ impl PostCache {
         }
         
         let data = std::fs::read(path)?;
-        let cache = postcard::from_bytes(&data)?;
+        let cache = bitcode::deserialize(&data)?;
         
         Ok(cache)
     }
@@ -97,8 +97,8 @@ impl PostCache {
     }
     
     pub fn save<P: AsRef<Path>>(&self, path: P) -> Result<()> {
-        let mut output = std::fs::File::create(path)?;
-        postcard::to_io(self, &mut output)?;
+        let buffer = bitcode::serialize(self)?;
+        std::fs::write(path, &buffer)?;
         Ok(())
     }
     
