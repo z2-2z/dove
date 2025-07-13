@@ -55,8 +55,8 @@ impl PostCache {
             return Ok(Self::default());
         }
         
-        let data = std::fs::read_to_string(path)?;
-        let cache = serde_json::from_str(&data)?;
+        let data = std::fs::read(path)?;
+        let cache = postcard::from_bytes(&data)?;
         
         Ok(cache)
     }
@@ -97,8 +97,8 @@ impl PostCache {
     }
     
     pub fn save<P: AsRef<Path>>(&self, path: P) -> Result<()> {
-        let output = std::fs::File::create(path)?;
-        serde_json::to_writer(output, self)?;
+        let mut output = std::fs::File::create(path)?;
+        postcard::to_io(self, &mut output)?;
         Ok(())
     }
     
