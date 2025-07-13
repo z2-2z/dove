@@ -4,7 +4,7 @@ use anyhow::Result;
 use pulldown_cmark as md;
 use askama::Template;
 
-use crate::{transformer, engine::templates::*, parser, posts::{Post, CacheEntry, PostDate}};
+use crate::{transformer, engine::templates::*, parser, posts::{Post, CacheEntry, PostDate}, net::http_url_exists};
 
 #[inline]
 fn append_template<T: Template>(output: &mut String, template: T) -> Result<()> {
@@ -31,6 +31,7 @@ fn make_id(id: &str) -> String {
 
 #[derive(Debug)]
 pub struct Renderer {
+    offline: bool,
     uses_code: bool,
     table_cursor: usize,
     figure_cursor: usize,
@@ -43,8 +44,9 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    pub fn new() -> Self {
+    pub fn new(offline: bool) -> Self {
         Self {
+            offline,
             uses_code: false,
             table_cursor: 1,
             figure_cursor: 1,
@@ -214,30 +216,36 @@ impl Renderer {
                     })?;
                 },
                 md::Tag::Link { dest_url, .. } => {
+                    let dest_url = dest_url.as_ref();
                     let data = self.collect(parser, basedir)?;
                     append_template(output, Link {
-                        url: dest_url.as_ref(),
+                        url: dest_url,
                         content: data,
                     })?;
-                    let path = basedir.join(dest_url.as_ref());
+                    let path = basedir.join(dest_url);
                     if path.exists() {
-                        self.file_mentions.insert(PathBuf::from(dest_url.as_ref()));
+                        self.file_mentions.insert(PathBuf::from(dest_url));
+                    } else if !self.offline && !http_url_exists(dest_url)? {
+                        println!("Warning: The specified URL {dest_url} seems to be invalid");
                     }
                 },
                 md::Tag::Image { dest_url, .. } => {
+                    let dest_url = dest_url.as_ref();
                     self.collect(parser, basedir)?;
                     
-                    let mut path = basedir.join(dest_url.as_ref());
+                    let mut path = basedir.join(dest_url);
                     
                     if path.exists() {
-                        self.file_mentions.insert(PathBuf::from(dest_url.as_ref()));
+                        self.file_mentions.insert(PathBuf::from(dest_url));
+                    } else if !self.offline && !http_url_exists(dest_url)? {
+                        println!("Warning: The specified URL {dest_url} seems to be invalid");
                     }
                     
                     let url = if path.exists() && transformer::is_image(&path) {
-                        path = transformer::transform_image_filename(dest_url.as_ref());
+                        path = transformer::transform_image_filename(dest_url);
                         path.to_str().unwrap()
                     } else {
-                        dest_url.as_ref()
+                        dest_url
                     };
                     
                     append_template(output, Figure {
@@ -560,8 +568,8 @@ mod tests {
     
     #[test]
     fn render_example() {
-        let post = crate::posts::Post::new("test-data/renderer/example.md").unwrap();
-        let mut renderer = Renderer::new();
+        let post = crate::posts::Post::new("test-data/renderer/example.md", false).unwrap();
+        let mut renderer = Renderer::new(false);
         let output = renderer.render_body(post.content(), Path::new("test-data/renderer/")).unwrap();
         println!("{output}");
         println!("{renderer:?}");

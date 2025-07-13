@@ -3,7 +3,7 @@ use std::path::Path;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-use crate::parser::*;
+use crate::{parser::*, net::http_url_exists};
 
 #[derive(Default, Debug, Clone, Eq, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct PostDate {
@@ -78,7 +78,7 @@ struct Parser {
 }
 
 impl Parser {
-    fn parse(&mut self, file: &[u8]) -> Result<()> {
+    fn parse(&mut self, file: &[u8], offline: bool) -> Result<()> {
         let mut line = 1;
         let mut cursor = 0;
         let mut cont = true;
@@ -109,10 +109,10 @@ impl Parser {
         
         self.content_offset = cursor;
         
-        self.check(file)
+        self.check(file, offline)
     }
     
-    fn check(&self, file: &[u8]) -> Result<()> {
+    fn check(&self, file: &[u8], offline: bool) -> Result<()> {
         /* Required fields */
         if self.metadata.date.day == 0 &&
                 self.metadata.date.month == 0 &&
@@ -133,7 +133,11 @@ impl Parser {
             anyhow::bail!("Post with mirror attribute set has trailing data");
         }
         
-        //TODO: warn if mirror URL gives 404 ?
+        if let Some(mirror) = &self.mirror {
+            if !offline && !http_url_exists(mirror)? {
+                println!("Warning: The specified URL {mirror} seems to be invalid");
+            }
+        }
         
         Ok(())
     }
@@ -293,10 +297,10 @@ pub struct Post {
 }
 
 impl Post {
-    pub fn new<P: AsRef<Path>>(path: P) -> Result<Self> {
+    pub fn new<P: AsRef<Path>>(path: P, offline: bool) -> Result<Self> {
         let file = crate::fs::mmap_file(path)?;
         let mut parser = Parser::default();
-        parser.parse(&file)?;
+        parser.parse(&file, offline)?;
         
         let filename;
         let url;
@@ -348,13 +352,13 @@ mod tests {
     
     #[test]
     fn print_mirror() {
-        let post = Post::new("test-data/postmeta/mirror.md").unwrap();
+        let post = Post::new("test-data/postmeta/mirror.md", false).unwrap();
         println!("{post:#?}");
     }
     
     #[test]
     fn print_title() {
-        let post = Post::new("test-data/postmeta/title.md").unwrap();
+        let post = Post::new("test-data/postmeta/title.md", false).unwrap();
         println!("{post:#?}");
         println!("{:?}", post.content());
     }

@@ -7,6 +7,7 @@ mod posts;
 mod fs;
 mod transformer;
 mod parser;
+mod net;
 
 #[global_allocator]
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
@@ -33,6 +34,9 @@ enum Commands {
         #[arg(short, long)]
         force: bool,
         
+        #[arg(short, long)]
+        offline: bool,
+        
         #[arg(long, default_value_t = String::from("./static"))]
         static_folder: String,
     },
@@ -42,7 +46,7 @@ enum Commands {
     },
 }
 
-fn render(input_dir: String, output_dir: String, cache_file: String, force: bool, static_folder: String) -> Result<()> {
+fn render(input_dir: String, output_dir: String, cache_file: String, force: bool, offline: bool, static_folder: String) -> Result<()> {
     /* Copy static files */
     fs::copy_dir_recursive(
         force,
@@ -77,8 +81,8 @@ fn render(input_dir: String, output_dir: String, cache_file: String, force: bool
             let mut input_basedir = input_file.clone();
             input_basedir.pop();
             let mut output_basedir;
-            let post = posts::Post::new(&input_file)?;
-            let mut renderer = engine::Renderer::new();
+            let post = posts::Post::new(&input_file, offline)?;
+            let mut renderer = engine::Renderer::new(offline);
             let html_path;
             
             if let Some(filename) = post.filename() {
@@ -105,6 +109,7 @@ fn render(input_dir: String, output_dir: String, cache_file: String, force: bool
                     std::fs::create_dir_all(&output_basedir)?;
                 }
                 
+                //TODO: optimize this
                 header.reserve(body.len() + footer.len());
                 header.append(&mut body);
                 header.append(&mut footer);
@@ -169,7 +174,7 @@ fn new(output: String) -> Result<()> {
 fn main() -> Result<()> {
     let args = Args::parse();    
     match args.command {
-        Commands::Render { input, output, cache, force, static_folder } => render(input, output, cache, force, static_folder),
+        Commands::Render { input, output, cache, force, offline, static_folder } => render(input, output, cache, force, offline, static_folder),
         Commands::New { output } => new(output),
     }
 }
