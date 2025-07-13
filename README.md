@@ -13,18 +13,19 @@ It comes with a combination of features that I could not find in other generator
 - __extendable__: If I ever think that a feature is missing, I can quickly add it
 
 ## CLI
-### Subcommand: render
-`dove render` should be run out of the repository while `--input` and `--output` point to corresponding folders.
+### Subcommand render
+`dove render` should be run out of the repository while `--input`, `--output` and `--cache` point to corresponding nodes.
 
-| Switch                | Description                                                             |
-|-----------------------|-------------------------------------------------------------------------|
+| Switch                 | Description                                                             |
+|------------------------|-------------------------------------------------------------------------|
 | -i, --input \<DIR>     | The folder that contains the source of all posts                        |
 | -o, --output \<DIR>    | The folder that holds the generated html pages                          |
-| -f, --force           | Force rendering of all posts even if their source has not been modified |
+| -c, --cache \<FILE>    | The build cache for the blog                                            |
+| -f, --force            | Force rendering of all posts even if their source has not been modified |
 | --static-folder \<DIR> | Path to dove's folder with static files (default: `./static/`)          |
 
-### Subcommand: new
-Execute `dove new <path-to-post>` to place a small template post into the supplied path.
+### Subcommand new
+Execute `dove new <post-id>` to create a new post with the given id.
 
 ## Input Folder
 `dove` recursively scans through the input folder and treats every file ending in `.md` as a blog post.
@@ -43,7 +44,7 @@ The following keys are supported:
 
 | Key        | Description                                                                                                                                                      |
 |------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| date       | The publication date of the blog post in the format: `DD-MM-YYYY` (required)                                                                                     |
+| date       | The publication date of the blog post in the format: `DD.MM.YYYY` (required)                                                                                     |
 | categories | The categories of the post separated by `,` (required)                                                                                                           |
 | mirror     | If the actual content of the post is hosted somewhere else but it shall still appear on this blog you can set the value to a URL which points to the actual post |
 | startpage  | Indicates whether the post shall be listed on the front page of the blog (default: `false`)                                                                      |
@@ -60,16 +61,16 @@ The following keys are supported:
 
 ### Bibliography
 The bibliography comes at the end of the document and is created by putting a separator `---` after the content.
-After the separator come the entries of the bibliography in form of `<reference>` tags:
+After the separator come the entries of the bibliography in form of `<ref>` tags:
 ```
-<reference id="...">...</reference>
+<ref id="...">...</ref>
 ```
 The id of a reference is the symbolic name that has been used inside `<cite>` elements. Inside the reference tag you can put
 normal markdown.
 
 ## Example Post
 ```
-date: 01-01-1970
+date: 01.01.1970
 categories: catname1, catname2
 startpage: true
 
@@ -97,7 +98,7 @@ Content of blog post in __normal__ [markdown](...).
 I am citing <cite>id1, id2</cite>.
 
 ---
-<reference id="id1">some __markdown__: probably a [link](somewhere)</reference>
-<reference id="id2">or just some text</reference>
+<ref id="id1">some __markdown__: probably a [link](somewhere)</ref>
+<ref id="id2">or just some text</ref>
 ```
 
