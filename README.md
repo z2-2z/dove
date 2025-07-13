@@ -22,6 +22,7 @@ It comes with a combination of features that I could not find in other generator
 | -o, --output \<DIR>    | The folder that holds the generated html pages                          |
 | -c, --cache \<FILE>    | The build cache for the blog                                            |
 | -f, --force            | Force rendering of all posts even if their source has not been modified |
+| -o, --offline          | Do not check whether any URLs used in the posts are valid               |
 | --static-folder \<DIR> | Path to dove's folder with static files (default: `./static/`)          |
 
 ### Subcommand new
