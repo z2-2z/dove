@@ -496,6 +496,12 @@ pub fn render_archive(entries: &[&CacheEntry]) -> Result<String> {
     Ok(output)
 }
 
+pub fn render_404() -> Result<String> {
+    let mut output = String::with_capacity(4096);
+    append_template(&mut output, Status404 {})?;
+    Ok(output)
+}
+
 fn max_post_date(entries: &[&CacheEntry]) -> PostDate {
     let mut ret = PostDate::default();
     

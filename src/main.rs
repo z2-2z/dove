@@ -8,9 +8,14 @@ mod transformer;
 mod parser;
 
 fn main() -> Result<()> {
+    let force = false;
     //TODO: change to postcard
     let mut cache = posts::PostCache::new("CACHE")?;
     let mut updated_posts = false;
+    
+    if force {
+        cache.clear();
+    }
     
     for input_file in posts::PostIterator::new("INPUT")? {
         let rerender = if let Some(entry) = cache.get(&input_file) {
@@ -98,7 +103,19 @@ fn main() -> Result<()> {
         cache.save("CACHE")?;
     }
     
-    // conditional recursive copy of static folder: only copy static source files that are newer
+    /* Copy static files */
+    let out_404 = PathBuf::from(format!("OUTPUT/404.html"));
+    if force || !out_404.exists() {
+        let mut output = engine::render_404()?.into_bytes();
+        transformer::transform_buffer(&mut output, out_404, true)?;
+    }
+    
+    fs::copy_dir_recursive(
+        force,
+        "STATIC",
+        "STATIC",
+        "OUTPUT",
+    )?;
     
     Ok(())
 }
