@@ -83,18 +83,14 @@ pub fn transform_filename<P: AsRef<Path>>(filename: P) -> PathBuf {
 
 pub fn transform_file<P1: AsRef<Path>, P2: AsRef<Path>>(infile: P1, outfile: P2) -> Result<()> {
     let mut buffer = std::fs::read(infile)?;
-    transform_buffer(&mut buffer, outfile, true)
+    transform_buffer(&mut buffer, outfile)
 }
 
-pub fn transform_buffer<P: AsRef<Path>>(buffer: &mut [u8], outfile: P, overwrite: bool) -> Result<()> {
+pub fn transform_buffer<P: AsRef<Path>>(buffer: &mut [u8], outfile: P) -> Result<()> {
     println!("Transforming {}", outfile.as_ref().display());
     
     let write_buffer = |outfile: &Path, buffer: &[u8]| -> Result<()> {
-        let mut file = if overwrite {
-            File::create(outfile)?
-        } else {
-            File::options().append(true).create(true).open(outfile)?
-        };
+        let mut file = File::create(outfile)?;
         file.write_all(buffer)?;
         file.flush()?;
         Ok(())

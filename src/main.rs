@@ -53,7 +53,7 @@ fn render(input_dir: String, output_dir: String, cache_file: String, force: bool
     let out_404 = PathBuf::from(format!("{output_dir}/404.html"));
     if force || !out_404.exists() {
         let mut output = engine::render_404()?.into_bytes();
-        transformer::transform_buffer(&mut output, out_404, true)?;
+        transformer::transform_buffer(&mut output, out_404)?;
     }
     
     /* Read posts */
@@ -81,10 +81,7 @@ fn render(input_dir: String, output_dir: String, cache_file: String, force: bool
             let html_path;
             
             if let Some(filename) = post.filename() {
-                // The order is important!
                 let mut body = renderer.render_body(post.content(), &input_basedir)?.into_bytes();
-                let mut header = renderer.render_header(&post)?.into_bytes();
-                let mut footer = renderer.render_footer()?.into_bytes();
                 
                 /* Check languages  */
                 for lang in renderer.languages_used() {
@@ -96,14 +93,20 @@ fn render(input_dir: String, output_dir: String, cache_file: String, force: bool
                     }
                 }
                 
+                let mut header = renderer.render_header(&post)?.into_bytes();
+                let mut footer = renderer.render_footer()?.into_bytes();
+                
                 /* Render page */
                 let output_file = format!("{output_dir}/{filename}");
                 output_basedir = PathBuf::from(&output_file);
                 output_basedir.pop();
+                std::fs::create_dir_all(&output_basedir)?;
                 
-                transformer::transform_buffer(&mut header, &output_file, true)?;
-                transformer::transform_buffer(&mut body, &output_file, false)?;
-                transformer::transform_buffer(&mut footer, &output_file, false)?;
+                header.reserve(body.len() + footer.len());
+                header.append(&mut body);
+                header.append(&mut footer);
+                
+                transformer::transform_buffer(&mut header, &output_file)?;
                 
                 /* Copy file mentions */
                 for path in renderer.file_mentions() {
@@ -138,15 +141,15 @@ fn render(input_dir: String, output_dir: String, cache_file: String, force: bool
         
         /* Render index */
         let mut output = engine::render_index(&entries)?.into_bytes();
-        transformer::transform_buffer(&mut output, format!("{output_dir}/index.html"), true)?;
+        transformer::transform_buffer(&mut output, format!("{output_dir}/index.html"))?;
         
         /* Render archive */
         let mut output = engine::render_archive(&entries)?.into_bytes();
-        transformer::transform_buffer(&mut output, format!("{output_dir}/archive.html"), true)?;
+        transformer::transform_buffer(&mut output, format!("{output_dir}/archive.html"))?;
         
         /* Render feed */
         let mut output = engine::render_feed(&entries)?.into_bytes();
-        transformer::transform_buffer(&mut output, format!("{output_dir}/atom.xml"), true)?;
+        transformer::transform_buffer(&mut output, format!("{output_dir}/atom.xml"))?;
         
         cache.save(&cache_file)?;
     }
