@@ -57,7 +57,6 @@ fn render(input_dir: String, output_dir: String, cache_file: String, force: bool
     }
     
     /* Read posts */
-    //TODO: change to postcard
     let mut cache = posts::PostCache::new(&cache_file)?;
     let mut updated_posts = false;
     
@@ -73,6 +72,8 @@ fn render(input_dir: String, output_dir: String, cache_file: String, force: bool
         };
         
         if rerender {
+            println!("Rendering {}...", input_file.display());
+            
             let mut input_basedir = input_file.clone();
             input_basedir.pop();
             let mut output_basedir;
@@ -159,11 +160,16 @@ fn render(input_dir: String, output_dir: String, cache_file: String, force: bool
     Ok(())
 }
 
-fn main() {
-    let args = Args::parse();
-    
+fn new(output: String) -> Result<()> {
+    let content = include_str!("new-template.md");
+    std::fs::write(output, content)?;
+    Ok(())
+}
+
+fn main() -> Result<()> {
+    let args = Args::parse();    
     match args.command {
-        Commands::Render { input, output, cache, force, static_folder } => render(input, output, cache, force, static_folder).unwrap(),
-        Commands::New { output } => todo!(),
+        Commands::Render { input, output, cache, force, static_folder } => render(input, output, cache, force, static_folder),
+        Commands::New { output } => new(output),
     }
 }

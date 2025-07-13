@@ -87,8 +87,6 @@ pub fn transform_file<P1: AsRef<Path>, P2: AsRef<Path>>(infile: P1, outfile: P2)
 }
 
 pub fn transform_buffer<P: AsRef<Path>>(buffer: &mut [u8], outfile: P) -> Result<()> {
-    println!("Transforming {}", outfile.as_ref().display());
-    
     let write_buffer = |outfile: &Path, buffer: &[u8]| -> Result<()> {
         let mut file = File::create(outfile)?;
         file.write_all(buffer)?;
