@@ -1,7 +1,10 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
+use std::sync::mpsc::{channel, Receiver};
 use std::fs::{File, read_dir, create_dir};
+use std::time::Duration;
 use memmap2::Mmap;
 use anyhow::Result;
+use notify::Watcher;
 
 use crate::transformer;
 
@@ -46,4 +49,65 @@ pub fn copy_dir_recursive<P1: AsRef<Path>, P2: AsRef<Path>>(force: bool, input: 
     }
     
     cpr_helper(force, input.as_ref(), input.as_ref(), output)
+}
+
+pub struct FileWatcher {
+    root: PathBuf,
+    rx: Receiver<Result<notify::Event, notify::Error>>,
+    watcher: notify::PollWatcher,
+    run: bool,
+}
+
+impl FileWatcher {
+    pub fn new<P: AsRef<Path>>(dir: P) -> Result<Self> {
+        let (tx, rx) = channel::<Result<notify::Event, notify::Error>>();
+        let config = notify::Config::default()
+            .with_poll_interval(Duration::from_secs(1));
+        let watcher = notify::PollWatcher::new(
+            tx,
+            config
+        )?;
+        
+        Ok(Self {
+            root: dir.as_ref().to_owned(),
+            rx,
+            watcher,
+            run: false,
+        })
+    }
+    
+    pub fn wait(&mut self) -> Result<()> {
+        if !self.run {
+            self.watcher.watch(&self.root, notify::RecursiveMode::Recursive)?;
+            self.run = true;
+        }
+        
+        loop {
+            let msg = self.rx.recv()??;
+        
+            #[cfg(test)]
+            println!("{msg:?}");
+            
+            if msg.paths.len() == 1 && msg.paths[0].is_file() {
+                break;
+            }
+        }
+        
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    #[test]
+    fn test_dir_watcher() {
+        let mut watcher = FileWatcher::new("test-data/watcher").unwrap();
+        
+        loop {
+            watcher.wait().unwrap();
+            println!("AFTER WAIT");
+        }
+    }
 }
