@@ -24,8 +24,8 @@ pub struct Headline<'a> {
 
 #[derive(Template)]
 #[template(path = "post/paragraph.html")]
-pub struct Paragraph {
-    pub content: String,
+pub struct Paragraph<'a> {
+    pub content: &'a str,
 }
 
 #[derive(Template)]
@@ -36,22 +36,22 @@ pub struct Text<'a> {
 
 #[derive(Template)]
 #[template(path = "post/subheading.html")]
-pub struct Subheading {
-    pub id: String,
-    pub content: String,
+pub struct Subheading<'a> {
+    pub id: &'a str,
+    pub content: &'a str,
 }
 
 #[derive(Template)]
 #[template(path = "post/quote.html")]
-pub struct Quote {
-    pub content: String,
+pub struct Quote<'a> {
+    pub content: &'a str,
 }
 
 #[derive(Template)]
 #[template(path = "post/codeblock.html")]
 pub struct Codeblock<'a> {
     pub language: &'a str,
-    pub content: String,
+    pub content: &'a str,
 }
 
 #[derive(Template)]
@@ -62,14 +62,14 @@ pub struct Tag<'a> {
 
 #[derive(Template)]
 #[template(path = "post/ordered_list.html")]
-pub struct OrderedList {
-    pub items: String,
+pub struct OrderedList<'a> {
+    pub items: &'a str,
 }
 
 #[derive(Template)]
 #[template(path = "post/unordered_list.html")]
-pub struct UnorderedList {
-    pub items: String,
+pub struct UnorderedList<'a> {
+    pub items: &'a str,
 }
 
 #[derive(Template)]
@@ -88,45 +88,45 @@ pub struct Table<'a> {
 
 #[derive(Template)]
 #[template(path = "post/table_head.html")]
-pub struct TableHead {
-    pub content: String,
+pub struct TableHead<'a> {
+    pub content: &'a str,
 }
 
 #[derive(Template)]
 #[template(path = "post/table_row.html")]
-pub struct TableRow {
-    pub content: String,
+pub struct TableRow<'a> {
+    pub content: &'a str,
 }
 
 #[derive(Template)]
 #[template(path = "post/table_cell.html")]
-pub struct TableCell {
-    pub content: String,
+pub struct TableCell<'a> {
+    pub content: &'a str,
 }
 
 #[derive(Template)]
 #[template(path = "post/emphasis.html")]
-pub struct Emphasis {
-    pub content: String,
+pub struct Emphasis<'a> {
+    pub content: &'a str,
 }
 
 #[derive(Template)]
 #[template(path = "post/bold.html")]
-pub struct Bold {
-    pub content: String,
+pub struct Bold<'a> {
+    pub content: &'a str,
 }
 
 #[derive(Template)]
 #[template(path = "post/strikethrough.html")]
-pub struct Strikethrough {
-    pub content: String,
+pub struct Strikethrough<'a> {
+    pub content: &'a str,
 }
 
 #[derive(Template)]
 #[template(path = "post/link.html")]
 pub struct Link<'a> {
     pub url: &'a str,
-    pub content: String,
+    pub content: &'a str,
 }
 
 #[derive(Template)]
@@ -148,14 +148,14 @@ pub struct BlankLine;
 
 #[derive(Template)]
 #[template(path = "post/bibliography.html")]
-pub struct Bibliography {
-    pub references: Vec<(usize, String)>,
+pub struct Bibliography<'a> {
+    pub references: &'a [(usize, String)],
 }
 
 #[derive(Template)]
 #[template(path = "post/cite.html")]
-pub struct Citation {
-    pub ids: Vec<usize>,
+pub struct Citation<'a> {
+    pub ids: &'a [usize],
 }
 
 #[derive(Template)]
@@ -195,6 +195,6 @@ pub struct AtomEntry<'a> {
 #[derive(Template)]
 #[template(path = "feed/atom.xml")]
 pub struct AtomFeed<'a> {
-    pub updated: String,
-    pub entries: Vec<AtomEntry<'a>>,
+    pub updated: &'a str,
+    pub entries: &'a [AtomEntry<'a>],
 }

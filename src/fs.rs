@@ -82,14 +82,17 @@ impl FileWatcher {
             self.run = true;
         }
         
+        'outer:
         loop {
             let msg = self.rx.recv()??;
         
             #[cfg(test)]
             println!("{msg:?}");
             
-            if msg.paths.len() == 1 && msg.paths[0].is_file() {
-                break;
+            for path in &msg.paths {
+                if path.is_file() {
+                    break 'outer;
+                }
             }
         }
         

@@ -112,7 +112,7 @@ impl Renderer {
                     let data = self.collect(parser, basedir)?;
                     if !data.is_empty() {
                         append_template(output, Paragraph {
-                            content: data,
+                            content: &data,
                         })?;
                     }
                     self.p_level -= 1;
@@ -124,14 +124,14 @@ impl Renderer {
                     let data = self.collect(parser, basedir)?;
                     let id = make_id(&data);
                     append_template(output, Subheading {
-                        content: data,
-                        id,
+                        content: &data,
+                        id: &id,
                     })?;
                 },
                 md::Tag::BlockQuote(_) => {
                     let data = self.collect(parser, basedir)?;
                     append_template(output, Quote {
-                        content: data,
+                        content: &data,
                     })?;
                 },
                 md::Tag::CodeBlock(kind) => {
@@ -145,7 +145,7 @@ impl Renderer {
                     let data = self.collect(parser, basedir)?;
                     append_template(output, Codeblock {
                         language: &language,
-                        content: data,
+                        content: &data,
                     })?;
                     self.languages.insert(language);
                     self.uses_code = true;
@@ -154,12 +154,12 @@ impl Renderer {
                     if start_number.is_some() {
                         let data = self.collect(parser, basedir)?;
                         append_template(output, OrderedList {
-                            items: data,
+                            items: &data,
                         })?;
                     } else {
                         let data = self.collect(parser, basedir)?;
                         append_template(output, UnorderedList {
-                            items: data,
+                            items: &data,
                         })?;
                     }
                 },
@@ -182,37 +182,37 @@ impl Renderer {
                 md::Tag::TableHead => {
                     let data = self.collect(parser, basedir)?;
                     append_template(output, TableHead {
-                        content: data,
+                        content: &data,
                     })?;
                 },
                 md::Tag::TableRow => {
                     let data = self.collect(parser, basedir)?;
                     append_template(output, TableRow {
-                        content: data,
+                        content: &data,
                     })?;
                 },
                 md::Tag::TableCell => {
                     let data = self.collect(parser, basedir)?;
                     append_template(output, TableCell {
-                        content: data,
+                        content: &data,
                     })?;
                 },
                 md::Tag::Emphasis => {
                     let data = self.collect(parser, basedir)?;
                     append_template(output, Emphasis {
-                        content: data,
+                        content: &data,
                     })?;
                 },
                 md::Tag::Strong => {
                     let data = self.collect(parser, basedir)?;
                     append_template(output, Bold {
-                        content: data,
+                        content: &data,
                     })?;
                 },
                 md::Tag::Strikethrough => {
                     let data = self.collect(parser, basedir)?;
                     append_template(output, Strikethrough {
-                        content: data,
+                        content: &data,
                     })?;
                 },
                 md::Tag::Link { dest_url, .. } => {
@@ -220,7 +220,7 @@ impl Renderer {
                     let data = self.collect(parser, basedir)?;
                     append_template(output, Link {
                         url: dest_url,
-                        content: data,
+                        content: &data,
                     })?;
                     let path = basedir.join(dest_url);
                     if path.exists() {
@@ -293,7 +293,7 @@ impl Renderer {
                         }
                         
                         append_template(output, Citation {
-                            ids,
+                            ids: &ids,
                         })?;
                     },
                     "<blank-line>" | "<blank-line/>" => {
@@ -335,7 +335,7 @@ impl Renderer {
                         }
                         
                         append_template(output, Citation {
-                            ids,
+                            ids: &ids,
                         })?;
                     },
                     tag => anyhow::bail!("Invalid inline html: {}", tag),
@@ -475,7 +475,7 @@ impl Renderer {
         
         /* Generate html */
         append_template(output, Bibliography {
-            references: bib,
+            references: &bib,
         })?;
         
         Ok(())
@@ -555,8 +555,8 @@ pub fn render_feed(entries: &[&CacheEntry]) -> Result<String> {
     }
     
     append_template(&mut output, AtomFeed {
-        updated,
-        entries: elements,
+        updated: &updated,
+        entries: &elements,
     })?;
     
     Ok(output)
