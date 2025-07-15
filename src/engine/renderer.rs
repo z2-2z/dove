@@ -247,8 +247,8 @@ impl<'a> Renderer<'a> {
                         println!("Warning: The specified URL {dest_url} seems to be invalid");
                     }
                     
-                    let url = if path.exists() && transformer::is_image(&path) {
-                        path = transformer::transform_image_filename(dest_url);
+                    let url = if path.exists() {
+                        path = transformer::transform_filename(dest_url);
                         path.to_str().unwrap()
                     } else {
                         dest_url

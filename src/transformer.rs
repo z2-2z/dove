@@ -5,7 +5,8 @@ use minify_html_onepass as minify_html;
 use image::ImageReader;
 use css_minify::optimizations as minify_css;
 
-pub fn is_image<P: AsRef<Path>>(path: P) -> bool {
+#[inline]
+fn is_image<P: AsRef<Path>>(path: P) -> bool {
     matches!(
         path.as_ref().extension().map(|x| x.as_encoded_bytes()),
         Some(b"jpg") | Some(b"JPG") |
@@ -18,7 +19,8 @@ pub fn is_image<P: AsRef<Path>>(path: P) -> bool {
     )
 }
 
-pub fn is_css<P: AsRef<Path>>(path: P) -> bool {
+#[inline]
+fn is_css<P: AsRef<Path>>(path: P) -> bool {
     let path = path.as_ref();
     let path = path.file_name().unwrap().to_str().unwrap();
     
@@ -29,7 +31,8 @@ pub fn is_css<P: AsRef<Path>>(path: P) -> bool {
     path.ends_with(".css")
 }
 
-pub fn is_js<P: AsRef<Path>>(path: P) -> bool {
+#[inline]
+fn is_js<P: AsRef<Path>>(path: P) -> bool {
     let path = path.as_ref();
     let path = path.file_name().unwrap().to_str().unwrap();
     
@@ -40,7 +43,8 @@ pub fn is_js<P: AsRef<Path>>(path: P) -> bool {
     path.ends_with(".js")
 }
 
-pub fn is_html<P: AsRef<Path>>(path: P) -> bool {
+#[inline]
+fn is_html<P: AsRef<Path>>(path: P) -> bool {
     matches!(
         path.as_ref().extension().map(|x| x.as_encoded_bytes()),
         Some(b"html") | Some(b"HTML")
@@ -48,21 +52,21 @@ pub fn is_html<P: AsRef<Path>>(path: P) -> bool {
 }
 
 #[inline]
-pub fn transform_css_filename<P: AsRef<Path>>(path: P) -> PathBuf {
+fn transform_css_filename<P: AsRef<Path>>(path: P) -> PathBuf {
     let mut path = path.as_ref().to_owned();
     path.set_extension("min.css");
     path
 }
 
 #[inline]
-pub fn transform_js_filename<P: AsRef<Path>>(path: P) -> PathBuf {
+fn transform_js_filename<P: AsRef<Path>>(path: P) -> PathBuf {
     let mut path = path.as_ref().to_owned();
     path.set_extension("min.js");
     path
 }
 
 #[inline]
-pub fn transform_image_filename<P: AsRef<Path>>(path: P) -> PathBuf {
+fn transform_image_filename<P: AsRef<Path>>(path: P) -> PathBuf {
     let mut path = path.as_ref().to_owned();
     path.set_extension("webp");
     path
