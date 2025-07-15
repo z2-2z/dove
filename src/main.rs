@@ -62,7 +62,7 @@ fn render(input_dir: String, output_dir: String, cache_file: String, force: bool
     
     /* Read posts */
     let mut cache = posts::PostCache::new(&cache_file)?;
-    let mut updated_posts = false;
+    let mut cache_changed = false;
     
     if force {
         cache.clear();
@@ -130,7 +130,7 @@ fn render(input_dir: String, output_dir: String, cache_file: String, force: bool
                 output_basedir = PathBuf::from(&output_dir);
             }
             
-            cache.insert(
+            cache_changed |= cache.insert(
                 &input_basedir,
                 &input_file,
                 &output_basedir,
@@ -139,11 +139,9 @@ fn render(input_dir: String, output_dir: String, cache_file: String, force: bool
                 &renderer,
             );
         }
-        
-        updated_posts |= rerender;
     }
     
-    if updated_posts {
+    if cache_changed {
         let mut entries: Vec<&posts::CacheEntry> = cache.resources().collect();
         entries.sort_by(|a, b| b.metadata().date().cmp(a.metadata().date()));
         

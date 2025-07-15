@@ -44,7 +44,7 @@ impl PostDate {
     }
 }
 
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PostMetadata {
     date: PostDate,
     categories: Vec<String>,

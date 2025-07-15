@@ -5,7 +5,7 @@ use anyhow::Result;
 
 use crate::{posts::{PostMetadata, Post}, engine::Renderer, transformer};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq ,Eq)]
 pub struct Dependency {
     input: PathBuf,
     output: PathBuf,
@@ -21,7 +21,7 @@ impl Dependency {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Eq)]
 pub struct CacheEntry {
     dependencies: Vec<Dependency>,
     metadata: PostMetadata,
@@ -69,7 +69,7 @@ impl PostCache {
         self.resources.get(path)
     }
     
-    pub fn insert(&mut self, input_basedir: &Path, input_file: &Path, output_basedir: &Path, output_file: &Path, post: &Post, renderer: &Renderer) {
+    pub fn insert(&mut self, input_basedir: &Path, input_file: &Path, output_basedir: &Path, output_file: &Path, post: &Post, renderer: &Renderer) -> bool {
         let mut dependencies = vec![
             Dependency {
                 input: input_file.to_owned(),
@@ -93,7 +93,19 @@ impl PostCache {
             url: post.url().to_owned(),
         };
         
-        self.resources.insert(input_file.to_owned(), entry);
+        let input_file = input_file.to_owned();
+        
+        let changed = if let Some(value) = self.resources.get(&input_file) {
+            &entry != value
+        } else {
+            true
+        };
+        
+        if changed {
+            self.resources.insert(input_file, entry);
+        }
+        
+        changed
     }
     
     pub fn save<P: AsRef<Path>>(&self, path: P) -> Result<()> {
