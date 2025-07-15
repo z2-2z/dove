@@ -14,15 +14,16 @@ It comes with a combination of features that I could not find in other generator
 
 ## CLI
 ### Subcommand render
-`dove render` should be run out of the repository while `--input`, `--output` and `--cache` point to corresponding nodes.
+`dove render` should be run out of the repository while `--input`, `--output` and `--cache` point to corresponding files/folders.
 
 | Switch                 | Description                                                             |
 |------------------------|-------------------------------------------------------------------------|
 | -i, --input \<DIR>     | The folder that contains the source of all posts                        |
 | -o, --output \<DIR>    | The folder that holds the generated html pages                          |
 | -c, --cache \<FILE>    | The build cache for the blog                                            |
-| -f, --force            | Force rendering of all posts even if their source has not been modified |
-| -o, --offline          | Do not check whether any URLs used in the posts are valid               |
+| -f, --force            | Disable incremental builds and force rendering of all posts even if their source has not been modified |
+| -o, --offline          | Do not check whether any URLs used in the posts point to valid resources |
+| -l, --live             | Keep the generator running and immediately rerender pages when the source files have changed |
 | --static-folder \<DIR> | Path to dove's folder with static files (default: `./static/`)          |
 
 ### Subcommand new

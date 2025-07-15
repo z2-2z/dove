@@ -1,1 +1,3 @@
 performance improvements for renderer
+<table-title> and <figure-title> with id="" attribute, add <ref>id</ref> to reference and link to either figure or table
+in bibliography: <ref> to <source>
