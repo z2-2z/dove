@@ -30,7 +30,8 @@ fn make_id(id: &str) -> String {
 }
 
 #[derive(Debug)]
-pub struct Renderer {
+pub struct Renderer<'a> {
+    basedir: &'a Path,
     offline: bool,
     uses_code: bool,
     table_cursor: usize,
@@ -43,9 +44,10 @@ pub struct Renderer {
     languages: HashSet<String>,
 }
 
-impl Renderer {
-    pub fn new(offline: bool) -> Self {
+impl<'a> Renderer<'a> {
+    pub fn new(basedir: &'a Path, offline: bool) -> Self {
         Self {
+            basedir,
             offline,
             uses_code: false,
             table_cursor: 1,
@@ -69,6 +71,7 @@ impl Renderer {
     
     pub fn render_header(&self, post: &Post) -> Result<String> {
         let mut output = String::with_capacity(4096);
+        
         append_template(&mut output, PostHeader {
             title: post.metadata().title(),
             uses_code: self.uses_code,
@@ -76,19 +79,22 @@ impl Renderer {
             keywords: post.metadata().categories().join(", "),
             url: post.url(),
         })?;
+        
         append_template(&mut output, Headline {
             headline: post.metadata().title(),
         })?;
+        
         append_template(&mut output, Categories {
             categories: post.metadata().categories(),
             day: post.metadata().date().day(),
             month: post.metadata().date().month_name(),
             year: post.metadata().date().year(),
         })?;
+        
         Ok(output)
     }
     
-    pub fn render_body(&mut self, content: &[u8], basedir: &Path) -> Result<String> {
+    pub fn render_body(&mut self, content: &[u8]) -> Result<String> {
         let content = std::str::from_utf8(content)?;
         let mut output = String::with_capacity(128 * 1024);
         let mut options = md::Options::empty();
@@ -98,18 +104,18 @@ impl Renderer {
         let mut parser = md::Parser::new_ext(content, options);
         
         while let Some(event) = parser.next() {
-            self.dispatch(event, &mut parser, &mut output, basedir)?;
+            self.dispatch(event, &mut parser, &mut output)?;
         }
         
         Ok(output)
     }
     
-    fn dispatch(&mut self, event: md::Event, parser: &mut md::Parser, output: &mut String, basedir: &Path) -> Result<()> {
+    fn dispatch(&mut self, event: md::Event, parser: &mut md::Parser, output: &mut String) -> Result<()> {
         match event {
             md::Event::Start(tag) => match tag {
                 md::Tag::Paragraph => {
                     self.p_level += 1;
-                    let data = self.collect(parser, basedir)?;
+                    let data = self.collect(parser)?;
                     if !data.is_empty() {
                         append_template(output, Paragraph {
                             content: &data,
@@ -121,7 +127,7 @@ impl Renderer {
                     if !matches!(level, md::HeadingLevel::H2) {
                         anyhow::bail!("Invalid heading. Only ## headings are allowed");
                     }
-                    let data = self.collect(parser, basedir)?;
+                    let data = self.collect(parser)?;
                     let id = make_id(&data);
                     append_template(output, Subheading {
                         content: &data,
@@ -129,7 +135,7 @@ impl Renderer {
                     })?;
                 },
                 md::Tag::BlockQuote(_) => {
-                    let data = self.collect(parser, basedir)?;
+                    let data = self.collect(parser)?;
                     append_template(output, Quote {
                         content: &data,
                     })?;
@@ -142,7 +148,7 @@ impl Renderer {
                             _ => language.as_ref().to_ascii_lowercase(),
                         }
                     };
-                    let data = self.collect(parser, basedir)?;
+                    let data = self.collect(parser)?;
                     append_template(output, Codeblock {
                         language: &language,
                         content: &data,
@@ -152,25 +158,25 @@ impl Renderer {
                 },
                 md::Tag::List(start_number) => {
                     if start_number.is_some() {
-                        let data = self.collect(parser, basedir)?;
+                        let data = self.collect(parser)?;
                         append_template(output, OrderedList {
                             items: &data,
                         })?;
                     } else {
-                        let data = self.collect(parser, basedir)?;
+                        let data = self.collect(parser)?;
                         append_template(output, UnorderedList {
                             items: &data,
                         })?;
                     }
                 },
                 md::Tag::Item => {
-                    let data = self.collect(parser, basedir)?;
+                    let data = self.collect(parser)?;
                     append_template(output, ListItem {
                         content: data,
                     })?;
                 },
                 md::Tag::Table(_) => {
-                    let data = self.collect(parser, basedir)?;
+                    let data = self.collect(parser)?;
                     append_template(output, Table {
                         number: self.table_cursor,
                         content: data,
@@ -180,49 +186,49 @@ impl Renderer {
                     self.description.clear();
                 },
                 md::Tag::TableHead => {
-                    let data = self.collect(parser, basedir)?;
+                    let data = self.collect(parser)?;
                     append_template(output, TableHead {
                         content: &data,
                     })?;
                 },
                 md::Tag::TableRow => {
-                    let data = self.collect(parser, basedir)?;
+                    let data = self.collect(parser)?;
                     append_template(output, TableRow {
                         content: &data,
                     })?;
                 },
                 md::Tag::TableCell => {
-                    let data = self.collect(parser, basedir)?;
+                    let data = self.collect(parser)?;
                     append_template(output, TableCell {
                         content: &data,
                     })?;
                 },
                 md::Tag::Emphasis => {
-                    let data = self.collect(parser, basedir)?;
+                    let data = self.collect(parser)?;
                     append_template(output, Emphasis {
                         content: &data,
                     })?;
                 },
                 md::Tag::Strong => {
-                    let data = self.collect(parser, basedir)?;
+                    let data = self.collect(parser)?;
                     append_template(output, Bold {
                         content: &data,
                     })?;
                 },
                 md::Tag::Strikethrough => {
-                    let data = self.collect(parser, basedir)?;
+                    let data = self.collect(parser)?;
                     append_template(output, Strikethrough {
                         content: &data,
                     })?;
                 },
                 md::Tag::Link { dest_url, .. } => {
                     let dest_url = dest_url.as_ref();
-                    let data = self.collect(parser, basedir)?;
+                    let data = self.collect(parser)?;
                     append_template(output, Link {
                         url: dest_url,
                         content: &data,
                     })?;
-                    let path = basedir.join(dest_url);
+                    let path = self.basedir.join(dest_url);
                     if path.exists() {
                         self.file_mentions.insert(PathBuf::from(dest_url));
                     } else if !self.offline && !http_url_exists(dest_url)? {
@@ -231,9 +237,9 @@ impl Renderer {
                 },
                 md::Tag::Image { dest_url, .. } => {
                     let dest_url = dest_url.as_ref();
-                    self.collect(parser, basedir)?;
+                    self.collect(parser)?;
                     
-                    let mut path = basedir.join(dest_url);
+                    let mut path = self.basedir.join(dest_url);
                     
                     if path.exists() {
                         self.file_mentions.insert(PathBuf::from(dest_url));
@@ -258,7 +264,7 @@ impl Renderer {
                     self.description.clear();
                 },
                 md::Tag::HtmlBlock => {
-                    let data = self.collect(parser, basedir)?;
+                    let data = self.collect(parser)?;
                     output.push_str(&data);
                 },
                 _ => unreachable!("{:?}", tag),
@@ -266,15 +272,15 @@ impl Renderer {
             md::Event::Html(tag) => {
                 match tag.as_ref().trim() {
                     "<table-title>" => {
-                        let data = self.collect_html(parser, "</table-title>", basedir)?;
+                        let data = self.collect_html(parser, "</table-title>")?;
                         self.description = data;
                     },
                     "<figure-title>" => {
-                        let data = self.collect_html(parser, "</figure-title>", basedir)?;
+                        let data = self.collect_html(parser, "</figure-title>")?;
                         self.description = data;
                     },
                     "<cite>" => {
-                        let data = self.collect_html(parser, "</cite>", basedir)?;
+                        let data = self.collect_html(parser, "</cite>")?;
                         let mut ids = Vec::new();
                         
                         for cite_id in data.split(',') {
@@ -308,15 +314,15 @@ impl Renderer {
                         append_template(output, BlankLine {})?;
                     },
                     "<table-title>" => {
-                        let data = self.collect_html(parser, "</table-title>", basedir)?;
+                        let data = self.collect_html(parser, "</table-title>")?;
                         self.description = data;
                     },
                     "<figure-title>" => {
-                        let data = self.collect_html(parser, "</figure-title>", basedir)?;
+                        let data = self.collect_html(parser, "</figure-title>")?;
                         self.description = data;
                     },
                     "<cite>" => {
-                        let data = self.collect_html(parser, "</cite>", basedir)?;
+                        let data = self.collect_html(parser, "</cite>")?;
                         let mut ids = Vec::new();
                         
                         for cite_id in data.split(',') {
@@ -360,7 +366,7 @@ impl Renderer {
             },
             md::Event::Rule => {
                 assert_eq!(self.p_level, 0);
-                self.parse_bibliography(parser, output, basedir)?;
+                self.parse_bibliography(parser, output)?;
             },
             _ => unreachable!("{:?}", event),
         }
@@ -368,7 +374,7 @@ impl Renderer {
         Ok(())
     }
     
-    fn collect(&mut self, parser: &mut md::Parser, basedir: &Path) -> Result<String> {
+    fn collect(&mut self, parser: &mut md::Parser) -> Result<String> {
         let mut temp = String::with_capacity(4 * 1024);
         
         while let Some(event) = parser.next() {
@@ -376,14 +382,14 @@ impl Renderer {
                 md::Event::End(_) => {
                     break;
                 },
-                event => self.dispatch(event, parser, &mut temp, basedir)?,
+                event => self.dispatch(event, parser, &mut temp)?,
             }
         }
         
         Ok(temp)
     }
     
-    fn collect_html(&mut self, parser: &mut md::Parser, end_tag: &str, basedir: &Path) -> Result<String> {
+    fn collect_html(&mut self, parser: &mut md::Parser, end_tag: &str) -> Result<String> {
         let mut temp = String::with_capacity(4 * 1024);
         
         while let Some(event) = parser.next() {
@@ -395,7 +401,7 @@ impl Renderer {
                 _ => {},
             }
             
-            self.dispatch(event, parser, &mut temp, basedir)?;
+            self.dispatch(event, parser, &mut temp)?;
         }
         
         Ok(temp)
@@ -435,7 +441,7 @@ impl Renderer {
         }
     }
     
-    fn parse_bibliography(&mut self, parser: &mut md::Parser, output: &mut String, basedir: &Path) -> Result<()> {
+    fn parse_bibliography(&mut self, parser: &mut md::Parser, output: &mut String) -> Result<()> {
         /* Collect all the markdown */
         let mut bib = Vec::new();
         
@@ -443,7 +449,7 @@ impl Renderer {
         
         loop {
             let id = self.parse_reference_tag(parser)?;
-            let data = self.collect_html(parser, "</ref>", basedir)?;
+            let data = self.collect_html(parser, "</ref>")?;
             
             bib.push((id, data));
             
@@ -569,8 +575,8 @@ mod tests {
     #[test]
     fn render_example() {
         let post = crate::posts::Post::new("test-data/renderer/example.md", false).unwrap();
-        let mut renderer = Renderer::new(false);
-        let output = renderer.render_body(post.content(), Path::new("test-data/renderer/")).unwrap();
+        let mut renderer = Renderer::new(Path::new("test-data/renderer/"), false);
+        let output = renderer.render_body(post.content()).unwrap();
         println!("{output}");
         println!("{renderer:?}");
     }

@@ -91,11 +91,11 @@ fn render(input_dir: &str, output_dir: &str, cache_file: &str, force: bool, live
                 input_basedir.pop();
                 let mut output_basedir;
                 let post = posts::Post::new(&input_file, offline)?;
-                let mut renderer = engine::Renderer::new(offline);
+                let mut renderer = engine::Renderer::new(&input_basedir, offline);
                 let html_path;
                 
                 if let Some(filename) = post.filename() {
-                    let mut body = renderer.render_body(post.content(), &input_basedir)?.into_bytes();
+                    let mut body = renderer.render_body(post.content())?.into_bytes();
                     
                     /* Check languages  */
                     for lang in renderer.languages_used() {
