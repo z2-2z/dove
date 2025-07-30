@@ -75,7 +75,7 @@ fn render(input_dir: &str, output_dir: &str, cache_file: &str, force: bool, live
     loop {
         for input_file in posts::PostIterator::new(input_dir)? {
             let rerender = if let Some(entry) = cache.get(&input_file) {
-                entry.dependencies().iter().any(|d| fs::is_newer(d.input(), d.output()))
+                (!live && entry.metadata().draft()) || entry.dependencies().iter().any(|d| fs::is_newer(d.input(), d.output()))
             } else {
                 true
             };
