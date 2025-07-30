@@ -81,18 +81,23 @@ fn render(input_dir: &str, output_dir: &str, cache_file: &str, force: bool, live
             };
             
             if rerender {
-                if live {
-                    println!("[{}] Rendering {}...", chrono::Local::now().format("%H:%M:%S"), input_file.display());
-                } else {
-                    println!("Rendering {}...", input_file.display());
-                }
-                
                 let mut input_basedir = input_file.clone();
                 input_basedir.pop();
                 let mut output_basedir;
                 let post = posts::Post::new(&input_file, offline)?;
                 let mut renderer = engine::Renderer::new(&input_basedir, offline);
                 let html_path;
+                
+                if post.metadata().draft() && !live {
+                    cache_changed |= cache.delete(&input_file);
+                    continue;
+                }
+                
+                if live {
+                    println!("[{}] Rendering {}...", chrono::Local::now().format("%H:%M:%S"), input_file.display());
+                } else {
+                    println!("Rendering {}...", input_file.display());
+                }
                 
                 if let Some(filename) = post.filename() {
                     let mut body = renderer.render_body(post.content())?.into_bytes();
@@ -189,7 +194,7 @@ fn main() -> Result<()> {
     let args = Args::parse();
     
     match args.command {
-        Commands::Render { input, output, cache, force, live, offline, static_folder } => {
+        Commands::Render { input, output, cache, mut force, live, offline, static_folder } => {
             let mut watcher = fs::FileWatcher::new(&input)?;
             
             loop {
@@ -200,6 +205,7 @@ fn main() -> Result<()> {
                 
                 if live {
                     watcher.wait()?;
+                    force = false;
                 } else {
                     break;
                 }

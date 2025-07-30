@@ -50,6 +50,7 @@ The following keys are supported:
 | categories | The categories of the post separated by `,` (required)                                                                                                           |
 | mirror     | If the actual content of the post is hosted somewhere else but it shall still appear on this blog you can set the value to a URL which points to the actual post |
 | startpage  | Indicates whether the post shall be listed on the front page of the blog (default: `false`)                                                                      |
+| draft  | If a post is marked as a draft, then it will only be rendered in live mode (default: `false`)                                                                      |
 
 ### Markdown content
 `dove` supports all [commonmark](https://commonmark.org/) directives and the following custom directives:

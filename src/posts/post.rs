@@ -50,6 +50,7 @@ pub struct PostMetadata {
     categories: Vec<String>,
     startpage: bool,
     title: String,
+    draft: bool,
 }
 
 impl PostMetadata {
@@ -67,6 +68,10 @@ impl PostMetadata {
     
     pub fn title(&self) -> &str {
         &self.title
+    }
+    
+    pub fn draft(&self) -> bool {
+        self.draft
     }
 }
 
@@ -178,6 +183,7 @@ impl Parser {
             b"categories" => self.parse_categories(value)?,
             b"startpage" => self.parse_startpage(value)?,
             b"mirror" => self.parse_mirror(value)?,
+            b"draft" => self.parse_draft(value)?,
             _ => return Err("Invalid metadata. Attribute does not exist".to_string()),
         }
         
@@ -256,6 +262,16 @@ impl Parser {
         match value {
             b"false" => self.metadata.startpage = false,
             b"true" => self.metadata.startpage = true,
+            _ => return Err("Invalid boolean value".to_string()),
+        }
+        
+        Ok(())
+    }
+    
+    fn parse_draft(&mut self, value: &[u8]) -> Result<(), String> {
+        match value {
+            b"false" => self.metadata.draft = false,
+            b"true" => self.metadata.draft = true,
             _ => return Err("Invalid boolean value".to_string()),
         }
         

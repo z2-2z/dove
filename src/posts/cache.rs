@@ -65,6 +65,10 @@ impl PostCache {
         self.resources.clear();
     }
     
+    pub fn delete(&mut self, path: &PathBuf) -> bool {
+        self.resources.remove(path).is_some()
+    }
+    
     pub fn get(&mut self, path: &PathBuf) -> Option<&CacheEntry> {
         self.resources.get(path)
     }
